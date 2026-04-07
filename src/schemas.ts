@@ -71,6 +71,13 @@ export const verifyPhoneInput = z.object({
   whatsapp: z.enum(["0", "1"]).optional().describe("'1' para enviar el código por WhatsApp"),
 });
 
+export const listCampaignsInput = z.object({
+  start_date: z.string().optional().describe("Fecha de inicio en formato YYYY-MM-DD"),
+  end_date: z.string().optional().describe("Fecha de fin en formato YYYY-MM-DD"),
+  sandbox: z.enum(["0", "1"]).optional().describe("'1' para listar campañas de sandbox"),
+  limit: z.string().optional().describe("Cantidad máxima de campañas a retornar (default: 50, max: 100)"),
+});
+
 export const checkVerificationInput = z.object({
   phone_number: z.string().describe("Número de teléfono que recibió el código"),
   country_code: z.string().default("52").describe("Código de país"),

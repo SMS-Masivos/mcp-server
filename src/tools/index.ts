@@ -8,6 +8,7 @@ import { registerAddContact } from "./add-contact.js";
 import { registerGetCampaignStats } from "./get-campaign-stats.js";
 import { registerVerifyPhone } from "./verify-phone.js";
 import { registerCheckVerification } from "./check-verification.js";
+import { registerListCampaigns } from "./list-campaigns.js";
 
 export function registerAllTools(server: McpServer, apiCall: ApiCall) {
   registerCheckBalance(server, apiCall);
@@ -18,4 +19,5 @@ export function registerAllTools(server: McpServer, apiCall: ApiCall) {
   registerGetCampaignStats(server, apiCall);
   registerVerifyPhone(server, apiCall);
   registerCheckVerification(server, apiCall);
+  registerListCampaigns(server, apiCall);
 }
