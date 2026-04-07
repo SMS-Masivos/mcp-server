@@ -1,8 +1,8 @@
 # @smsmasivos/mcp-server
 
-MCP server para [SMS Masivos](https://www.smsmasivos.com.mx) — plataforma de SMS masivos para Mexico y LATAM.
+MCP server para [SMS Masivos](https://www.smsmasivos.com.mx) — plataforma de SMS masivos para Mexico.
 
-Permite a Claude, Cursor, Windsurf y cualquier MCP client enviar SMS, consultar creditos, gestionar contactos y verificar numeros de telefono usando lenguaje natural.
+Permite a Claude, Cursor, Windsurf y cualquier MCP client enviar SMS a numeros mexicanos, consultar creditos, gestionar contactos y verificar numeros de telefono usando lenguaje natural.
 
 ## Instalacion
 

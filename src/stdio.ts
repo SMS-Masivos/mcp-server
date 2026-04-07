@@ -16,10 +16,10 @@ if (!apiKey) {
 }
 
 const server = new McpServer(
-  { name: "smsmasivos", version: "0.1.0" },
+  { name: "smsmasivos", version: "0.2.1" },
   {
     instructions:
-      "Servidor MCP para SMS Masivos — plataforma de SMS masivos para México y LATAM. " +
+      "Servidor MCP para SMS Masivos — plataforma de SMS masivos para México. " +
       "Usa check_balance antes de enviar SMS para verificar créditos disponibles. " +
       "Usa sandbox='1' en send_sms para pruebas sin envío real. " +
       "El código de país por defecto es 52 (México).",
