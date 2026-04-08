@@ -15,12 +15,12 @@ describe("check_balance tool logic", () => {
   it("returns credit balance from API", async () => {
     mockFetch.mockResolvedValueOnce(jsonResponse({ success: true, credit: 150.5 }));
 
-    const apiCall = createApiClient({ apiKey: "test", baseUrl: "https://test.api.com" });
+    const apiCall = createApiClient({ apiKey: "test" });
     const result = await apiCall<{ credit: number }>("/credits/consult");
 
     expect(result.credit).toBe(150.5);
     expect(mockFetch).toHaveBeenCalledWith(
-      "https://test.api.com/credits/consult",
+      "https://api.smsmasivos.com.mx/credits/consult",
       expect.objectContaining({ method: "POST" }),
     );
   });
@@ -28,7 +28,7 @@ describe("check_balance tool logic", () => {
   it("throws on auth failure", async () => {
     mockFetch.mockResolvedValueOnce(jsonResponse({ success: false }, 401));
 
-    const apiCall = createApiClient({ apiKey: "bad", baseUrl: "https://test.api.com" });
+    const apiCall = createApiClient({ apiKey: "bad" });
 
     await expect(apiCall("/credits/consult")).rejects.toThrow("API key inválida");
   });
@@ -51,7 +51,7 @@ describe("send_sms tool logic", () => {
       }),
     );
 
-    const apiCall = createApiClient({ apiKey: "test", baseUrl: "https://test.api.com" });
+    const apiCall = createApiClient({ apiKey: "test" });
     const result = await apiCall<{ total_messages: number; campaignId: number }>("/sms/send", {
       numbers: "5512345678,5598765432",
       message: "Hola mundo",
@@ -68,7 +68,7 @@ describe("send_sms tool logic", () => {
       jsonResponse({ success: false, message: "Insufficient credits", code: "sms_06" }),
     );
 
-    const apiCall = createApiClient({ apiKey: "test", baseUrl: "https://test.api.com" });
+    const apiCall = createApiClient({ apiKey: "test" });
 
     await expect(apiCall("/sms/send", { numbers: "5512345678", message: "test", country_code: "52" })).rejects.toThrow(
       "Insufficient credits",
@@ -89,7 +89,7 @@ describe("list_agendas tool logic", () => {
       }),
     );
 
-    const apiCall = createApiClient({ apiKey: "test", baseUrl: "https://test.api.com" });
+    const apiCall = createApiClient({ apiKey: "test" });
     const result = await apiCall<{ result: Array<{ agenda_name: string; list_key: string }> }>("/agendas/get");
 
     expect(result.result).toHaveLength(1);
@@ -100,7 +100,7 @@ describe("list_agendas tool logic", () => {
   it("returns empty array when no agendas", async () => {
     mockFetch.mockResolvedValueOnce(jsonResponse({ success: true, result: [] }));
 
-    const apiCall = createApiClient({ apiKey: "test", baseUrl: "https://test.api.com" });
+    const apiCall = createApiClient({ apiKey: "test" });
     const result = await apiCall<{ result: unknown[] }>("/agendas/get");
 
     expect(result.result).toHaveLength(0);
@@ -118,7 +118,7 @@ describe("get_campaign_stats tool logic", () => {
       }),
     );
 
-    const apiCall = createApiClient({ apiKey: "test", baseUrl: "https://test.api.com" });
+    const apiCall = createApiClient({ apiKey: "test" });
     const result = await apiCall<{ details: { effectiveness: number; delivered: number } }>("/reports/details", {
       campaign_id: "12345",
     });
@@ -132,7 +132,7 @@ describe("get_campaign_stats tool logic", () => {
       jsonResponse({ success: false, message: "Campaign is still processing", code: "campaign_processing" }),
     );
 
-    const apiCall = createApiClient({ apiKey: "test", baseUrl: "https://test.api.com" });
+    const apiCall = createApiClient({ apiKey: "test" });
 
     await expect(apiCall("/reports/details", { campaign_id: "999" })).rejects.toThrow("Campaign is still processing");
   });

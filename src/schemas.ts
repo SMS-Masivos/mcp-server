@@ -59,6 +59,7 @@ export const getCampaignStatsInput = z.object({
 export const verifyPhoneInput = z.object({
   phone_number: z.string().describe("Número de teléfono sin código de país (ej: '5512345678')"),
   country_code: z.string().default("52").describe("Código de país (default: 52 México)"),
+  company: z.string().describe("Nombre de la empresa que envía la verificación (máx 40 caracteres)"),
   code_type: z
     .enum(["numeric", "alphanumeric"])
     .optional()
@@ -82,4 +83,53 @@ export const checkVerificationInput = z.object({
   phone_number: z.string().describe("Número de teléfono que recibió el código"),
   country_code: z.string().default("52").describe("Código de país"),
   verification_code: z.string().describe("Código de verificación ingresado por el usuario"),
+});
+
+export const deleteContactInput = z.object({
+  list_key: z.string().describe("Clave única de la agenda de donde eliminar el contacto"),
+  number: z.string().describe("Número de teléfono del contacto a eliminar"),
+  email: z.string().optional().describe("Email del contacto (opcional, para identificación adicional)"),
+});
+
+// Lealtad
+export const listLoyaltyCardsInput = z.object({});
+
+export const addLoyaltyContactInput = z.object({
+  loyalty_key: z.string().describe("Clave única de la tarjeta de lealtad. Obtenla con list_loyalty_cards."),
+  phone: z.string().describe("Número de teléfono del contacto (mínimo 10 dígitos)"),
+  customer_name: z.string().optional().describe("Nombre del cliente"),
+});
+
+export const getLoyaltyContactInput = z.object({
+  loyalty_key: z.string().describe("Clave única de la tarjeta de lealtad"),
+  phone: z.string().optional().describe("Número de teléfono. Si se omite, retorna todos los contactos."),
+});
+
+export const registerLoyaltySaleInput = z.object({
+  loyalty_key: z.string().describe("Clave única de la tarjeta de lealtad"),
+  phone: z.string().describe("Número de teléfono del cliente"),
+  stamps_quantity: z.number().describe("Cantidad de sellos a registrar"),
+});
+
+// Monedero
+export const listWalletsInput = z.object({});
+
+export const addWalletContactInput = z.object({
+  wallet_key: z.string().describe("Clave única del monedero. Obtenla con list_wallets."),
+  phone: z.string().describe("Número de teléfono del contacto"),
+  customer_name: z.string().describe("Nombre del cliente"),
+  usertool_id: z.number().describe("ID de la herramienta de usuario (obtenlo de list_wallets)"),
+});
+
+export const getWalletContactInput = z.object({
+  wallet_key: z.string().describe("Clave única del monedero"),
+  phone: z.string().optional().describe("Número de teléfono. Si se omite, retorna todos los contactos."),
+});
+
+export const updateWalletBalanceInput = z.object({
+  wallet_key: z.string().describe("Clave única del monedero"),
+  phone: z.string().describe("Número de teléfono del cliente"),
+  transaction_type: z.enum(["1", "2"]).describe("Tipo de transacción: '1' para agregar saldo, '2' para restar saldo"),
+  transaction_amount: z.number().describe("Monto de la transacción (valor positivo)"),
+  usertool_id: z.number().describe("ID de la herramienta de usuario (obtenlo de list_wallets)"),
 });

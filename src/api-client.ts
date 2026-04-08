@@ -12,6 +12,8 @@ const DEFAULT_TIMEOUT = 30_000;
 export interface ApiClientConfig {
   apiKey: string;
   baseUrl?: string;
+  cfAccessClientId?: string;
+  cfAccessClientSecret?: string;
   timeout?: number;
 }
 
@@ -22,7 +24,7 @@ export function createApiClient(config: ApiClientConfig): ApiCall {
   const timeout = config.timeout ?? DEFAULT_TIMEOUT;
 
   async function apiCall<T>(endpoint: string, params?: Record<string, unknown>): Promise<T> {
-    return executeWithRetry<T>(baseUrl, endpoint, config.apiKey, timeout, params);
+    return executeWithRetry<T>(baseUrl, endpoint, config.apiKey, timeout, params, config.cfAccessClientId, config.cfAccessClientSecret);
   }
 
   return apiCall;
@@ -34,19 +36,27 @@ async function executeWithRetry<T>(
   apiKey: string,
   timeout: number,
   params?: Record<string, unknown>,
+  cfAccessClientId?: string,
+  cfAccessClientSecret?: string,
   attempt: number = 1,
 ): Promise<T> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeout);
 
   try {
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      apikey: apiKey,
+    };
+    if (cfAccessClientId && cfAccessClientSecret) {
+      headers["CF-Access-Client-Id"] = cfAccessClientId;
+      headers["CF-Access-Client-Secret"] = cfAccessClientSecret;
+    }
+
     const response = await fetch(`${baseUrl}${endpoint}`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        apikey: apiKey,
-      },
-      body: JSON.stringify(params ?? {}),
+      headers,
+      body: JSON.stringify({ source: "mcp", ...params }),
       signal: controller.signal,
     });
 
@@ -60,7 +70,7 @@ async function executeWithRetry<T>(
       if (attempt < 2) {
         const retryAfter = parseInt(response.headers.get("Retry-After") ?? "2", 10);
         await sleep(retryAfter * 1000);
-        return executeWithRetry<T>(baseUrl, endpoint, apiKey, timeout, params, attempt + 1);
+        return executeWithRetry<T>(baseUrl, endpoint, apiKey, timeout, params, cfAccessClientId, cfAccessClientSecret, attempt + 1);
       }
       throw new RateLimitError();
     }
@@ -88,7 +98,7 @@ async function executeWithRetry<T>(
 
     if (error instanceof DOMException && error.name === "AbortError") {
       if (attempt < 2) {
-        return executeWithRetry<T>(baseUrl, endpoint, apiKey, timeout, params, attempt + 1);
+        return executeWithRetry<T>(baseUrl, endpoint, apiKey, timeout, params, cfAccessClientId, cfAccessClientSecret, attempt + 1);
       }
       throw new TimeoutError();
     }

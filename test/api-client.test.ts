@@ -11,7 +11,7 @@ function jsonResponse(body: object, status = 200, headers: Record<string, string
 }
 
 describe("createApiClient", () => {
-  const apiCall = createApiClient({ apiKey: "test-key", baseUrl: "https://test.api.com", timeout: 5000 });
+  const apiCall = createApiClient({ apiKey: "test-key", timeout: 5000 });
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -24,11 +24,11 @@ describe("createApiClient", () => {
 
     expect(result.credit).toBe(100);
     expect(mockFetch).toHaveBeenCalledWith(
-      "https://test.api.com/credits/consult",
+      "https://api.smsmasivos.com.mx/credits/consult",
       expect.objectContaining({
         method: "POST",
         headers: expect.objectContaining({ apikey: "test-key" }),
-        body: JSON.stringify({ foo: "bar" }),
+        body: JSON.stringify({ source: "mcp", foo: "bar" }),
       }),
     );
   });
@@ -92,7 +92,7 @@ describe("createApiClient", () => {
   });
 
   it("throws TimeoutError on abort after retry", async () => {
-    const apiCallShort = createApiClient({ apiKey: "test-key", baseUrl: "https://test.api.com", timeout: 1 });
+    const apiCallShort = createApiClient({ apiKey: "test-key", timeout: 1 });
 
     mockFetch.mockImplementation(
       () => new Promise((_, reject) => setTimeout(() => reject(new DOMException("Aborted", "AbortError")), 10)),
