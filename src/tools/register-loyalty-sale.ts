@@ -20,7 +20,10 @@ export function registerRegisterLoyaltySale(server: McpServer, apiCall: ApiCall)
           ],
         };
       } catch (error) {
-        const message = error instanceof SmsmasivosError ? error.message : String(error);
+        let message = error instanceof SmsmasivosError ? error.message : String(error);
+        if (message.includes("indefinido") || message.includes("formato incorrecto")) {
+          message = "La tarjeta de lealtad no existe o el contacto no está registrado. Verifica el loyalty_key con list_loyalty_cards y que el teléfono esté registrado con add_loyalty_contact.";
+        }
         return { content: [{ type: "text" as const, text: `Error: ${message}` }], isError: true };
       }
     },

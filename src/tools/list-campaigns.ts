@@ -22,7 +22,12 @@ export function registerListCampaigns(server: McpServer, apiCall: ApiCall) {
     listCampaignsInput.shape,
     async (params) => {
       try {
-        const result = await apiCall<ListCampaignsResponse>("/campaigns", params);
+        const apiParams = { ...params };
+        // Append time to end_date so BETWEEN covers the full day
+        if (apiParams.end_date && !apiParams.end_date.includes(" ")) {
+          apiParams.end_date = `${apiParams.end_date} 23:59:59`;
+        }
+        const result = await apiCall<ListCampaignsResponse>("/campaigns", apiParams);
 
         if (result.campaigns.length === 0) {
           return { content: [{ type: "text" as const, text: "No se encontraron campañas." }] };

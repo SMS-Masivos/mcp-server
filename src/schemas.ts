@@ -97,6 +97,10 @@ export const verifyPhoneInput = z.object({
     .describe("Fecha de expiración del código en formato 'YYYY-MM-DD HH:mm:ss'"),
   voice: z.enum(["0", "1"]).optional().describe("'1' para enviar el código por llamada de voz"),
   whatsapp: z.enum(["0", "1"]).optional().describe("'1' para enviar el código por WhatsApp"),
+  sandbox: z
+    .enum(["0", "1"])
+    .optional()
+    .describe("Enviar en modo sandbox (no envía realmente, no consume créditos). '1' para activar."),
 });
 
 export const listCampaignsInput = z.object({
@@ -124,7 +128,7 @@ export const listLoyaltyCardsInput = z.object({});
 export const addLoyaltyContactInput = z.object({
   loyalty_key: z.string().describe("Clave única de la tarjeta de lealtad. Obtenla con list_loyalty_cards."),
   phone: phoneNumber.describe("Número de teléfono del contacto (10-15 dígitos)"),
-  customer_name: z.string().max(100).optional().describe("Nombre del cliente"),
+  customer_name: z.string().max(100).describe("Nombre del cliente (requerido por el API)"),
 });
 
 export const getLoyaltyContactInput = z.object({

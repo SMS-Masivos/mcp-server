@@ -30,7 +30,10 @@ export function registerAddContact(server: McpServer, apiCall: ApiCall) {
           ],
         };
       } catch (error) {
-        const message = error instanceof SmsmasivosError ? error.message : String(error);
+        let message = error instanceof SmsmasivosError ? error.message : String(error);
+        if (message.includes("vinculada a una herramienta")) {
+          message += ". Esta agenda está asociada a una tarjeta de lealtad, monedero u otra herramienta. Usa el tool específico (add_loyalty_contact, add_wallet_contact) para agregar contactos.";
+        }
         return { content: [{ type: "text" as const, text: `Error: ${message}` }], isError: true };
       }
     },
