@@ -17,7 +17,7 @@ interface CampaignStatsResponse {
 export function registerGetCampaignStats(server: McpServer, apiCall: ApiCall) {
   server.tool(
     "get_campaign_stats",
-    "Obtiene las estadísticas de entrega de una campaña SMS por su ID. Muestra: efectividad (%), entregados, fallidos, pendientes y no cobrados. Solo funciona para campañas que ya terminaron de procesarse.",
+    "Obtiene las estadísticas de entrega de una campaña SMS por su ID. Muestra: efectividad (%), entregados, fallidos, pendientes y no cobrados. Funciona para campañas enviadas o completadas. Detecta automáticamente si la campaña es sandbox.",
     getCampaignStatsInput.shape,
     async (params) => {
       try {
