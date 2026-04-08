@@ -18,21 +18,71 @@ Conecta tu asistente de IA con SMS Masivos para enviar mensajes, gestionar conta
 
 ## Quick Start
 
+Necesitas una API key de SMS Masivos. Obtenla en [tu panel](https://app.smsmasivos.com.mx).
+
+### Opcion 1: Remoto (recomendado — sin instalar nada)
+
+Agrega esta configuracion a tu herramienta de IA y listo:
+
+```json
+{
+  "mcpServers": {
+    "smsmasivos": {
+      "type": "http",
+      "url": "https://mcp.smsmasivos.com.mx/mcp",
+      "headers": {
+        "Authorization": "Bearer tu-api-key"
+      }
+    }
+  }
+}
+```
+
+### Opcion 2: Local (requiere Node.js)
+
 ```bash
 npx @smsmasivos/mcp-server
 ```
 
-Necesitas una API key de SMS Masivos. Obtenla en [tu panel](https://app.smsmasivos.com.mx).
+```json
+{
+  "mcpServers": {
+    "smsmasivos": {
+      "command": "npx",
+      "args": ["-y", "@smsmasivos/mcp-server"],
+      "env": {
+        "SMSMASIVOS_API_KEY": "tu-api-key"
+      }
+    }
+  }
+}
+```
 
-## Configuracion
+## Configuracion por herramienta
 
 ### Claude Desktop
 
-Agrega esto a tu archivo de configuracion:
+Agrega a tu archivo de configuracion:
 
 - **macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
 - **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
 
+**Remoto (recomendado):**
+```json
+{
+  "mcpServers": {
+    "smsmasivos": {
+      "type": "http",
+      "url": "https://mcp.smsmasivos.com.mx/mcp",
+      "headers": {
+        "Authorization": "Bearer tu-api-key"
+      }
+    }
+  }
+}
+```
+
+**Local:**
 ```json
 {
   "mcpServers": {
@@ -49,6 +99,12 @@ Agrega esto a tu archivo de configuracion:
 
 ### Claude Code
 
+**Remoto (recomendado):**
+```bash
+claude mcp add smsmasivos --transport http https://mcp.smsmasivos.com.mx/mcp -H "Authorization: Bearer tu-api-key"
+```
+
+**Local:**
 ```bash
 claude mcp add smsmasivos -e SMSMASIVOS_API_KEY=tu-api-key -- npx -y @smsmasivos/mcp-server
 ```
@@ -57,6 +113,22 @@ claude mcp add smsmasivos -e SMSMASIVOS_API_KEY=tu-api-key -- npx -y @smsmasivos
 
 Agrega a `.cursor/mcp.json` en tu proyecto:
 
+**Remoto (recomendado):**
+```json
+{
+  "mcpServers": {
+    "smsmasivos": {
+      "type": "http",
+      "url": "https://mcp.smsmasivos.com.mx/mcp",
+      "headers": {
+        "Authorization": "Bearer tu-api-key"
+      }
+    }
+  }
+}
+```
+
+**Local:**
 ```json
 {
   "mcpServers": {
@@ -73,32 +145,7 @@ Agrega a `.cursor/mcp.json` en tu proyecto:
 
 ### Windsurf
 
-Agrega a `~/.codeium/windsurf/mcp_config.json`:
-
-```json
-{
-  "mcpServers": {
-    "smsmasivos": {
-      "command": "npx",
-      "args": ["-y", "@smsmasivos/mcp-server"],
-      "env": {
-        "SMSMASIVOS_API_KEY": "tu-api-key"
-      }
-    }
-  }
-}
-```
-
-### Usando Bun (alternativa mas rapida)
-
-Si tienes [Bun](https://bun.sh) instalado, reemplaza `npx` por `bunx` en cualquier configuracion:
-
-```json
-{
-  "command": "bunx",
-  "args": ["-y", "@smsmasivos/mcp-server"]
-}
-```
+Agrega a `~/.codeium/windsurf/mcp_config.json` — misma configuracion que Cursor (remoto o local).
 
 ## Tools disponibles
 
