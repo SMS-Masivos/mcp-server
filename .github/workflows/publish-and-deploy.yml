@@ -1,40 +1,28 @@
-name: Publish to npm & Deploy Worker
+name: Deploy Worker on version bump
 
 on:
   push:
     branches: [main]
+    paths:
+      - "package.json"
 
 jobs:
-  publish:
+  deploy-worker:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-          registry-url: "https://registry.npmjs.org"
-
-      - run: npm ci
-
-      - name: Check if version changed
+      - name: Check if npm version changed
         id: version
         run: |
           LOCAL=$(node -p "require('./package.json').version")
           REMOTE=$(npm view @smsmasivos/mcp-server version 2>/dev/null || echo "0.0.0")
-          echo "local=$LOCAL" >> "$GITHUB_OUTPUT"
-          echo "remote=$REMOTE" >> "$GITHUB_OUTPUT"
+          echo "local=$LOCAL remote=$REMOTE"
           if [ "$LOCAL" != "$REMOTE" ]; then
             echo "changed=true" >> "$GITHUB_OUTPUT"
           else
             echo "changed=false" >> "$GITHUB_OUTPUT"
           fi
-
-      - name: Publish to npm
-        if: steps.version.outputs.changed == 'true'
-        run: npm publish --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Trigger Worker deploy
         if: steps.version.outputs.changed == 'true'
