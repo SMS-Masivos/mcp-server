@@ -9,10 +9,10 @@ Conecta tu asistente de IA con SMS Masivos para enviar mensajes, gestionar conta
 
 ## Features
 
-- **Envio de SMS** — individuales o masivos, hasta 500 numeros por llamada
-- **Campanas** — lista tus campanas y consulta estadisticas de entrega
-- **Agendas y contactos** — gestiona listas de contactos
-- **Verificacion OTP** — envia y valida codigos por SMS, voz o WhatsApp
+- **19 tools** — SMS, campanas, contactos, verificacion OTP, lealtad, monederos y metricas
+- **FAQ integrado** — 5 recursos de ayuda accesibles desde tu asistente
+- **Prompts guiados** — 4 flujos paso a paso para tareas comunes
+- **Telemetria** — metricas de uso por sesion (latencia, errores, sandbox vs produccion)
 - **Sandbox** — prueba sin enviar mensajes reales ni gastar creditos
 - **Compatible** — funciona con Claude, Cursor, Windsurf y cualquier cliente MCP
 
@@ -102,17 +102,77 @@ Si tienes [Bun](https://bun.sh) instalado, reemplaza `npx` por `bunx` en cualqui
 
 ## Tools disponibles
 
+### SMS y campanas
+
 | Tool | Descripcion |
 |------|-------------|
 | `check_balance` | Consulta creditos SMS disponibles |
 | `send_sms` | Envia SMS a uno o varios numeros (max 500) |
 | `list_campaigns` | Lista campanas con filtros por fecha |
 | `get_campaign_stats` | Estadisticas de entrega de una campana |
+
+### Contactos y agendas
+
+| Tool | Descripcion |
+|------|-------------|
 | `list_agendas` | Lista agendas de contactos |
 | `get_contacts` | Obtiene contactos de una agenda |
 | `add_contact` | Agrega contacto a una agenda |
+| `delete_contact` | Elimina un contacto de una agenda |
+
+### Verificacion OTP
+
+| Tool | Descripcion |
+|------|-------------|
 | `verify_phone` | Inicia verificacion OTP (SMS, voz o WhatsApp) |
 | `check_verification` | Verifica codigo OTP |
+
+### Programa de lealtad
+
+| Tool | Descripcion |
+|------|-------------|
+| `list_loyalty_cards` | Lista tarjetas de lealtad de tu cuenta |
+| `add_loyalty_contact` | Agrega contacto a una tarjeta de lealtad |
+| `get_loyalty_contact` | Consulta sellos y canjes de un contacto |
+| `register_loyalty_sale` | Registra venta y agrega sellos |
+
+### Monedero electronico
+
+| Tool | Descripcion |
+|------|-------------|
+| `list_wallets` | Lista monederos de tu cuenta |
+| `add_wallet_contact` | Agrega contacto a un monedero |
+| `get_wallet_contact` | Consulta saldo de un contacto |
+| `update_wallet_balance` | Agrega o resta saldo a un contacto |
+
+### Utilidades
+
+| Tool | Descripcion |
+|------|-------------|
+| `get_metrics` | Metricas de uso de la sesion (latencia, errores, sandbox vs prod) |
+
+## FAQ Resources
+
+El servidor incluye 5 recursos de ayuda accesibles via MCP resources:
+
+| Resource | Descripcion |
+|----------|-------------|
+| `getting-started` | Como obtener tu API key y configurar el server |
+| `common-errors` | Errores frecuentes y como solucionarlos |
+| `limits-and-pricing` | Limites de la API y precios |
+| `sandbox-mode` | Como usar el modo sandbox para pruebas |
+| `tool-examples` | Ejemplos de uso de cada tool |
+
+## Prompts guiados
+
+Flujos paso a paso que tu asistente puede ejecutar:
+
+| Prompt | Descripcion |
+|--------|-------------|
+| `enviar-campana` | Verificar saldo, enviar SMS y consultar estadisticas |
+| `consultar-lealtad` | Listar tarjetas y consultar sellos de clientes |
+| `gestionar-contactos` | Ver agendas, contactos y agregar nuevos |
+| `verificar-numero` | Enviar codigo OTP y validarlo |
 
 ## Ejemplos
 
@@ -124,6 +184,9 @@ Una vez configurado, puedes pedirle a tu asistente:
 - "Como fue la entrega de la campana 12345?"
 - "Verifica el numero 5598765432 por WhatsApp"
 - "Agrega a Juan (5512345678) a mi agenda de recordatorios"
+- "Muestrame mis tarjetas de lealtad"
+- "Cuantos sellos tiene el cliente 5512345678?"
+- "Agrega $50 al monedero del cliente 5598765432"
 
 ## Desarrollo
 
