@@ -9,7 +9,7 @@ Conecta tu asistente de IA con SMS Masivos para enviar mensajes, gestionar conta
 
 ## Features
 
-- **19 tools** — SMS, campanas, contactos, verificacion OTP, lealtad, monederos y metricas
+- **27 tools** — SMS, campanas, contactos, agendas CRUD, webhooks, reports, payment requests, verificacion OTP, lealtad, monederos y metricas
 - **FAQ integrado** — 5 recursos de ayuda accesibles desde tu asistente
 - **Prompts guiados** — 4 flujos paso a paso para tareas comunes
 - **Telemetria** — metricas de uso por sesion (latencia, errores, sandbox vs produccion)
@@ -163,8 +163,14 @@ Agrega a `~/.codeium/windsurf/mcp_config.json` — misma configuracion que Curso
 | Tool | Descripcion |
 |------|-------------|
 | `list_agendas` | Lista agendas de contactos |
+| `find_agenda` | Busca agendas por nombre (parcial) |
+| `create_agenda` | Crea una nueva agenda |
+| `rename_agenda` | Cambia el nombre de una agenda |
+| `delete_agenda` | Elimina una agenda y sus contactos (DESTRUCTIVO) |
 | `get_contacts` | Obtiene contactos de una agenda |
 | `add_contact` | Agrega contacto a una agenda |
+| `update_contact` | Actualiza datos de un contacto existente |
+| `duplicate_contact` | Copia un contacto entre agendas |
 | `delete_contact` | Elimina un contacto de una agenda |
 
 ### Verificacion OTP
@@ -181,7 +187,9 @@ Agrega a `~/.codeium/windsurf/mcp_config.json` — misma configuracion que Curso
 | `list_loyalty_cards` | Lista tarjetas de lealtad de tu cuenta |
 | `add_loyalty_contact` | Agrega contacto a una tarjeta de lealtad |
 | `get_loyalty_contact` | Consulta sellos y canjes de un contacto |
-| `register_loyalty_sale` | Registra venta y agrega sellos |
+
+> ⚠️ `register_loyalty_sale` fue removida en v1.0.0 (breaking) por falta de
+> idempotency en el endpoint del API. Ver [CHANGELOG](./CHANGELOG.md).
 
 ### Monedero electronico
 
@@ -192,6 +200,25 @@ Agrega a `~/.codeium/windsurf/mcp_config.json` — misma configuracion que Curso
 | `get_wallet_contact` | Consulta saldo de un contacto |
 | `update_wallet_balance` | Agrega o resta saldo a un contacto |
 
+### Webhooks
+
+| Tool | Descripcion |
+|------|-------------|
+| `manage_webhook` | Gestiona el webhook de la cuenta. Acciones: `list`, `add`, `toggle`, `delete`. URLs https obligatorias. |
+
+### Reports
+
+| Tool | Descripcion |
+|------|-------------|
+| `generate_report` | Reporte detallado por rango de fechas (max 7 dias) |
+| `get_report_details` | Agregados rapidos (entregados/fallidos/efectividad) por campaign_id |
+
+### Solicitudes de pago
+
+| Tool | Descripcion |
+|------|-------------|
+| `send_payment_request` | Envia solicitud de pago a un cliente via SMS usando un template configurado |
+
 ### Utilidades
 
 | Tool | Descripcion |
@@ -200,7 +227,7 @@ Agrega a `~/.codeium/windsurf/mcp_config.json` — misma configuracion que Curso
 
 ## FAQ Resources
 
-El servidor incluye 5 recursos de ayuda accesibles via MCP resources:
+El servidor incluye 6 recursos de ayuda accesibles via MCP resources:
 
 | Resource | Descripcion |
 |----------|-------------|
@@ -209,6 +236,7 @@ El servidor incluye 5 recursos de ayuda accesibles via MCP resources:
 | `limits-and-pricing` | Limites de la API y precios |
 | `sandbox-mode` | Como usar el modo sandbox para pruebas |
 | `tool-examples` | Ejemplos de uso de cada tool |
+| `v1-changes` | Cambios breaking y tools nuevas en v1.0.0 |
 
 ## Prompts guiados
 

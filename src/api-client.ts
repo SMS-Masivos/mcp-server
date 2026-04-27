@@ -17,14 +17,38 @@ export interface ApiClientConfig {
   timeout?: number;
 }
 
-export type ApiCall = <T>(endpoint: string, params?: Record<string, unknown>) => Promise<T>;
+export interface ApiCallOptions {
+  timeout?: number;
+  method?: "GET" | "POST";
+}
+
+export type ApiCall = <T>(
+  endpoint: string,
+  params?: Record<string, unknown>,
+  opts?: ApiCallOptions,
+) => Promise<T>;
 
 export function createApiClient(config: ApiClientConfig): ApiCall {
   const baseUrl = config.baseUrl ?? DEFAULT_BASE_URL;
-  const timeout = config.timeout ?? DEFAULT_TIMEOUT;
+  const defaultTimeout = config.timeout ?? DEFAULT_TIMEOUT;
 
-  async function apiCall<T>(endpoint: string, params?: Record<string, unknown>): Promise<T> {
-    return executeWithRetry<T>(baseUrl, endpoint, config.apiKey, timeout, params, config.cfAccessClientId, config.cfAccessClientSecret);
+  async function apiCall<T>(
+    endpoint: string,
+    params?: Record<string, unknown>,
+    opts?: ApiCallOptions,
+  ): Promise<T> {
+    const timeout = opts?.timeout ?? defaultTimeout;
+    const method = opts?.method ?? "POST";
+    return executeWithRetry<T>(
+      baseUrl,
+      endpoint,
+      config.apiKey,
+      timeout,
+      method,
+      params,
+      config.cfAccessClientId,
+      config.cfAccessClientSecret,
+    );
   }
 
   return apiCall;
@@ -35,6 +59,7 @@ async function executeWithRetry<T>(
   endpoint: string,
   apiKey: string,
   timeout: number,
+  method: "GET" | "POST",
   params?: Record<string, unknown>,
   cfAccessClientId?: string,
   cfAccessClientSecret?: string,
@@ -53,12 +78,20 @@ async function executeWithRetry<T>(
       headers["CF-Access-Client-Secret"] = cfAccessClientSecret;
     }
 
-    const response = await fetch(`${baseUrl}${endpoint}`, {
-      method: "POST",
+    const url = method === "GET"
+      ? `${baseUrl}${endpoint}${buildQueryString({ source: "mcp", ...params })}`
+      : `${baseUrl}${endpoint}`;
+
+    const init: RequestInit = {
+      method,
       headers,
-      body: JSON.stringify({ source: "mcp", ...params }),
       signal: controller.signal,
-    });
+    };
+    if (method === "POST") {
+      init.body = JSON.stringify({ source: "mcp", ...params });
+    }
+
+    const response = await fetch(url, init);
 
     clearTimeout(timer);
 
@@ -70,7 +103,17 @@ async function executeWithRetry<T>(
       if (attempt < 2) {
         const retryAfter = parseInt(response.headers.get("Retry-After") ?? "2", 10);
         await sleep(retryAfter * 1000);
-        return executeWithRetry<T>(baseUrl, endpoint, apiKey, timeout, params, cfAccessClientId, cfAccessClientSecret, attempt + 1);
+        return executeWithRetry<T>(
+          baseUrl,
+          endpoint,
+          apiKey,
+          timeout,
+          method,
+          params,
+          cfAccessClientId,
+          cfAccessClientSecret,
+          attempt + 1,
+        );
       }
       throw new RateLimitError();
     }
@@ -98,7 +141,17 @@ async function executeWithRetry<T>(
 
     if (error instanceof DOMException && error.name === "AbortError") {
       if (attempt < 2) {
-        return executeWithRetry<T>(baseUrl, endpoint, apiKey, timeout, params, cfAccessClientId, cfAccessClientSecret, attempt + 1);
+        return executeWithRetry<T>(
+          baseUrl,
+          endpoint,
+          apiKey,
+          timeout,
+          method,
+          params,
+          cfAccessClientId,
+          cfAccessClientSecret,
+          attempt + 1,
+        );
       }
       throw new TimeoutError();
     }
@@ -109,6 +162,16 @@ async function executeWithRetry<T>(
 
     throw new NetworkError(String(error));
   }
+}
+
+function buildQueryString(params: Record<string, unknown>): string {
+  const search = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) {
+    if (value === undefined || value === null) continue;
+    search.append(key, String(value));
+  }
+  const qs = search.toString();
+  return qs ? `?${qs}` : "";
 }
 
 function sleep(ms: number): Promise<void> {
