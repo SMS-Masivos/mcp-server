@@ -1,5 +1,5 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import type { ApiCall } from "../api-client.js";
+import type { ApiCall, ApiCallOptions } from "../api-client.js";
 import { metrics } from "../metrics.js";
 import { SmsmasivosError } from "../errors.js";
 import { registerCheckBalance } from "./check-balance.js";
@@ -16,18 +16,36 @@ import { registerDeleteContact } from "./delete-contact.js";
 import { registerListLoyaltyCards } from "./list-loyalty-cards.js";
 import { registerAddLoyaltyContact } from "./add-loyalty-contact.js";
 import { registerGetLoyaltyContact } from "./get-loyalty-contact.js";
-import { registerRegisterLoyaltySale } from "./register-loyalty-sale.js";
+// register_loyalty_sale REMOVED in v1.0.0 (breaking) — falta idempotency_key en
+// api/loyalty/sale. Reintroducir cuando el API soporte idempotency. Tracked en
+// TODOS Fase 5. register_wallet_sale fue evaluada y descartada en Fase 4 por el
+// mismo motivo: no se llegó a implementar como tool MCP.
 import { registerListWallets } from "./list-wallets.js";
 import { registerAddWalletContact } from "./add-wallet-contact.js";
 import { registerGetWalletContact } from "./get-wallet-contact.js";
 import { registerUpdateWalletBalance } from "./update-wallet-balance.js";
+// Fase 4 — Cobertura operativa (v1.0.0)
+import { registerCreateAgenda } from "./create-agenda.js";
+import { registerRenameAgenda } from "./rename-agenda.js";
+import { registerDeleteAgenda } from "./delete-agenda.js";
+import { registerFindAgenda } from "./find-agenda.js";
+import { registerUpdateContact } from "./update-contact.js";
+import { registerDuplicateContact } from "./duplicate-contact.js";
+import { registerManageWebhook } from "./manage-webhook.js";
+import { registerGenerateReport } from "./generate-report.js";
+import { registerGetReportDetails } from "./get-report-details.js";
+import { registerSendPaymentRequest } from "./send-payment-request.js";
 
 function createInstrumentedApiCall(apiCall: ApiCall): ApiCall {
-  return async <T>(endpoint: string, params?: Record<string, unknown>): Promise<T> => {
+  return async <T>(
+    endpoint: string,
+    params?: Record<string, unknown>,
+    opts?: ApiCallOptions,
+  ): Promise<T> => {
     const start = performance.now();
     const isSandbox = params?.sandbox === "1" || params?.sandbox === 1;
     try {
-      const result = await apiCall<T>(endpoint, params);
+      const result = await apiCall<T>(endpoint, params, opts);
       metrics.recordCall(endpoint, performance.now() - start, isSandbox);
       return result;
     } catch (error) {
@@ -56,7 +74,7 @@ export function registerAllTools(server: McpServer, apiCall: ApiCall) {
   registerListLoyaltyCards(server, instrumented);
   registerAddLoyaltyContact(server, instrumented);
   registerGetLoyaltyContact(server, instrumented);
-  registerRegisterLoyaltySale(server, instrumented);
+  // registerRegisterLoyaltySale REMOVED in v1.0.0 — ver comentario arriba.
 
   // Fase 2 — Monedero
   registerListWallets(server, instrumented);
@@ -67,4 +85,24 @@ export function registerAllTools(server: McpServer, apiCall: ApiCall) {
   // Utilidades
   registerDeleteContact(server, instrumented);
   registerGetMetrics(server);
+
+  // Fase 4 — Agendas CRUD
+  registerCreateAgenda(server, instrumented);
+  registerRenameAgenda(server, instrumented);
+  registerDeleteAgenda(server, instrumented);
+  registerFindAgenda(server, instrumented);
+
+  // Fase 4 — Contactos
+  registerUpdateContact(server, instrumented);
+  registerDuplicateContact(server, instrumented);
+
+  // Fase 4 — Webhooks (consolidado con discriminator)
+  registerManageWebhook(server, instrumented);
+
+  // Fase 4 — Reports
+  registerGenerateReport(server, instrumented);
+  registerGetReportDetails(server, instrumented);
+
+  // Fase 4 — Payment Request
+  registerSendPaymentRequest(server, instrumented);
 }

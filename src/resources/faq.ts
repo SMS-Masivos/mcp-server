@@ -156,6 +156,98 @@ El modo sandbox permite probar el flujo completo sin enviar mensajes reales ni c
 ## Monedero
 > "¿Cuál es el saldo del cliente en mi monedero?"
 → Usa \`list_wallets\` para obtener el key, luego \`get_wallet_contact\`
+
+## Crear / borrar / renombrar agendas (v1.0.0+)
+> "Crea una agenda llamada 'Clientes VIP'"
+→ Usa \`create_agenda\` con agenda_name. Devuelve list_key.
+
+> "Renombra la agenda XYZ a 'Prospectos Q2'"
+→ Usa \`rename_agenda\` con list_key + agenda_name nuevo.
+
+> "Elimina la agenda XYZ"
+→ Usa \`delete_agenda\` (DESTRUCTIVO — confirma con el usuario primero).
+
+> "Busca agendas que contengan 'cliente' en el nombre"
+→ Usa \`find_agenda\` con query.
+
+## Actualizar / duplicar contactos (v1.0.0+)
+> "Cambia el nombre del contacto 5512345678 en la agenda XYZ"
+→ Usa \`update_contact\`.
+
+> "Copia el contacto 123 de agenda A a agenda B"
+→ Usa \`duplicate_contact\` con current_list_key + new_list_key + contact_id.
+
+## Webhooks (v1.0.0+)
+> "¿Cuál es mi webhook configurado?"
+→ Usa \`manage_webhook\` con action='list'.
+
+> "Registra https://hooks.example.com/sms y actívalo"
+→ Usa \`manage_webhook\` con action='add', url, status='1'. URL debe ser https.
+
+> "Desactiva el webhook"
+→ Usa \`manage_webhook\` con action='toggle', status='0'.
+
+> "Elimina el webhook"
+→ Usa \`manage_webhook\` con action='delete' (DESTRUCTIVO).
+
+## Reports (v1.0.0+)
+> "Dame el reporte de la campaña 12345"
+→ Usa \`get_report_details\` con campaign_id (rápido, agregados).
+
+> "Dame el reporte detallado del 1 al 5 de abril"
+→ Usa \`generate_report\` con start_date + end_date (máximo 7 días por consulta).
+
+## Solicitudes de pago (v1.0.0+)
+> "Manda solicitud de pago al 5512345678 con template tok_abc por 500 pesos"
+→ Usa \`send_payment_request\` con template + number + amount.
+`,
+  },
+  "v1-changes": {
+    title: "Cambios v1.0.0 (BREAKING)",
+    description: "Tools añadidas, removidas y cambios de comportamiento en v1.0.0",
+    content: `# v1.0.0 — Cambios importantes
+
+Primer release estable del MCP. **Contiene cambios breaking** respecto a v0.4.x.
+
+## Tools removidas (BREAKING)
+
+- \`register_loyalty_sale\` — removida porque el endpoint \`/loyalty/sale\` no soporta
+  \`idempotency_key\`. Si la red falla en un retry, se pueden duplicar sellos.
+  Reintroducir cuando el API soporte idempotency.
+
+## Tools nuevas (10)
+
+### Agendas CRUD
+- \`create_agenda\` — crea una nueva agenda
+- \`rename_agenda\` — cambia el nombre
+- \`delete_agenda\` — elimina (DESTRUCTIVO)
+- \`find_agenda\` — busca por nombre (búsqueda parcial, GET endpoint)
+
+### Contactos
+- \`update_contact\` — actualiza datos de un contacto existente
+- \`duplicate_contact\` — copia un contacto entre agendas
+
+### Webhooks (consolidado)
+- \`manage_webhook\` con \`action\` enum: 'list', 'add', 'toggle', 'delete'
+  - URLs deben ser https; rechaza IPs privadas y localhost por seguridad
+
+### Reports
+- \`generate_report\` — reporte detallado por rango de fechas (máx. 7 días)
+- \`get_report_details\` — agregados rápidos por campaign_id
+
+### Operación
+- \`send_payment_request\` — envía solicitud de pago a cliente vía SMS
+
+## Total
+
+- v0.4.x: 19 tools
+- v1.0.0: **27 tools** (-1 dropped, +9 nuevas; \`manage_webhook\` consolida 4 ops)
+
+## Migración para clientes existentes
+
+Si tu integración invocaba \`register_loyalty_sale\`, debes:
+1. Hasta nueva tool con idempotency: registrar ventas desde el panel web
+2. O usar la API REST directamente con tu propio control de retry idempotente
 `,
   },
 };
