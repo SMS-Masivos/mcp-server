@@ -234,6 +234,19 @@ export const findAgendaInput = z.object({
     .string()
     .max(100)
     .describe("Texto a buscar en el nombre de las agendas (búsqueda parcial, case-insensitive)"),
+  page: z
+    .number()
+    .int()
+    .min(1)
+    .optional()
+    .describe("Número de página (1-indexed). Default 1. Si la respuesta indica has_more=true, invoca de nuevo con next_page."),
+  limit: z
+    .number()
+    .int()
+    .min(1)
+    .max(100)
+    .optional()
+    .describe("Resultados por página (default 20, max 100)"),
 });
 
 // ─────────────────────────────────────────────────────────
