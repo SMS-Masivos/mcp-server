@@ -65,13 +65,32 @@ describe("v1.0.0 Fase 4 — tools nuevas registradas", () => {
     });
   }
 
-  it("total tools v1.0.0 = 27 (19 existentes - 1 dropped + 9 nuevas + manage_webhook consolidado + get_metrics)", () => {
-    // Conteo: 9 fase1 + 4 lealtad + 4 monedero + 1 utilidad + 10 fase4 + 1 metrics
-    //       = 9 + 4 + 4 + 1 + 10 + 1 = 29 (registradas via SDK; get_metrics es local)
-    // Pero post-drop de register_loyalty_sale: 4 lealtad → 3, total = 28.
-    // get_metrics no se loga como tool de API call, así que: 8 + 3 + 4 + 1 + 10 + 1 = 27
+  it("total tools v1.1.0 = 29 (27 v1.0.0 + 2 OTP completion en v1.1.0)", () => {
+    // v1.0.0 base: 27 tools
+    //   8 fase1 (post-drop register_loyalty_sale del lealtad) + 3 lealtad + 4 monedero
+    //   + 1 utilidad (delete_contact) + 10 fase4 + 1 metrics = 27
+    // v1.1.0: + resend_verification + reset_verification = 29
     const names = getRegisteredToolNames();
-    expect(names.length).toBeGreaterThanOrEqual(26);
-    expect(names.length).toBeLessThanOrEqual(28);
+    expect(names.length).toBeGreaterThanOrEqual(28);
+    expect(names.length).toBeLessThanOrEqual(30);
+  });
+});
+
+describe("v1.1.0 OTP completion — tools registradas", () => {
+  function getRegisteredToolNames(): string[] {
+    const server = new McpServer({ name: "test", version: "0.0.0" });
+    const fakeApiCall = async () => ({}) as any;
+    registerAllTools(server, fakeApiCall);
+    // @ts-expect-error — internal access intentional
+    const tools = server._registeredTools ?? server.registeredTools ?? {};
+    return Object.keys(tools);
+  }
+
+  it("registra resend_verification", () => {
+    expect(getRegisteredToolNames()).toContain("resend_verification");
+  });
+
+  it("registra reset_verification", () => {
+    expect(getRegisteredToolNames()).toContain("reset_verification");
   });
 });

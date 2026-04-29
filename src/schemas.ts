@@ -162,6 +162,38 @@ export const checkVerificationInput = z.object({
   verification_code: z.string().min(1).max(10).describe("Código de verificación ingresado por el usuario"),
 });
 
+export const resendVerificationInput = z.object({
+  phone_number: phoneNumber.describe("Número de teléfono al que se reenvía el código (mismo usado en verify_phone)"),
+  country_code: countryCode.describe("Código de país"),
+  company: z.string().min(1).max(40).describe("Nombre de la empresa que envía la verificación (máx 40 caracteres)"),
+  reset_code: z
+    .enum(["0", "1"])
+    .optional()
+    .describe("'1' para regenerar un código nuevo. Default '0' reenvía el código existente."),
+  code_type: z
+    .enum(["numeric", "alphanumeric"])
+    .optional()
+    .describe("Tipo de código si se regenera: 'numeric' o 'alphanumeric'"),
+  expiration_date: dateYMDHMS
+    .optional()
+    .describe("Nueva fecha de expiración del código en formato 'YYYY-MM-DD HH:mm:ss'"),
+  voice: z.enum(["0", "1"]).optional().describe("'1' para reenviar por llamada de voz"),
+  whatsapp: z.enum(["0", "1"]).optional().describe("'1' para reenviar por WhatsApp"),
+});
+
+export const resetVerificationInput = z.object({
+  phone_number: phoneNumber.describe("Número de teléfono cuya verificación se resetea"),
+  country_code: countryCode.describe("Código de país"),
+  reset_code: z
+    .enum(["0", "1"])
+    .optional()
+    .describe("'1' para generar un código nuevo. Default '0' mantiene el código existente y solo limpia los intentos."),
+  code_type: z
+    .enum(["numeric", "alphanumeric"])
+    .optional()
+    .describe("Tipo de código si se regenera: 'numeric' o 'alphanumeric'"),
+});
+
 export const deleteContactInput = z.object({
   list_key: z.string().describe("Clave única de la agenda de donde eliminar el contacto"),
   number: phoneNumber.describe("Número de teléfono del contacto a eliminar"),
