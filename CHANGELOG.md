@@ -5,6 +5,15 @@ All notable changes to `@smsmasivos/mcp-server` are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] — 2026-04-29
+
+Patch — README only. v1.1.0 publicó las tools `resend_verification` y `reset_verification` correctamente pero el README no las listó en la tabla "Verificación OTP". Sin cambios de código.
+
+### Changed
+
+- `README.md`: tabla "Verificación OTP" ahora lista las 4 tools (start, check, resend, reset).
+- Header de features: "27 tools" → "29 tools" + nota explícita "OTP: start/check/resend/reset".
+
 ## [1.1.0] — 2026-04-29
 
 Minor bump (no breaking). Completa el flujo OTP que quedó parcial en v1.0.0.
