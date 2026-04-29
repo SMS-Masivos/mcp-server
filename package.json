@@ -1,7 +1,7 @@
 {
   "name": "@smsmasivos/mcp-server",
-  "version": "1.1.0",
-  "description": "MCP server for SMS Masivos — bulk SMS platform for Mexico. 29 tools covering SMS, agendas, contacts, webhooks, reports, payment requests, loyalty, wallet and phone verification (OTP).",
+  "version": "1.1.1",
+  "description": "MCP server for SMS Masivos — bulk SMS platform for Mexico. 29 tools covering SMS, agendas, contacts, webhooks, reports, payment requests, loyalty, wallet and phone verification (OTP: start/check/resend/reset).",
   "type": "module",
   "main": "dist/stdio.js",
   "bin": {

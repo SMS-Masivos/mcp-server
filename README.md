@@ -9,7 +9,7 @@ Conecta tu asistente de IA con SMS Masivos para enviar mensajes, gestionar conta
 
 ## Features
 
-- **27 tools** — SMS, campanas, contactos, agendas CRUD, webhooks, reports, payment requests, verificacion OTP, lealtad, monederos y metricas
+- **29 tools** — SMS, campanas, contactos, agendas CRUD, webhooks, reports, payment requests, verificacion OTP completa (start/check/resend/reset), lealtad, monederos y metricas
 - **FAQ integrado** — 5 recursos de ayuda accesibles desde tu asistente
 - **Prompts guiados** — 4 flujos paso a paso para tareas comunes
 - **Telemetria** — metricas de uso por sesion (latencia, errores, sandbox vs produccion)
@@ -179,6 +179,8 @@ Agrega a `~/.codeium/windsurf/mcp_config.json` — misma configuracion que Curso
 |------|-------------|
 | `verify_phone` | Inicia verificacion OTP (SMS, voz o WhatsApp) |
 | `check_verification` | Verifica codigo OTP |
+| `resend_verification` | Reenvia codigo OTP (mismo o regenerado con `reset_code: "1"`) |
+| `reset_verification` | Limpia intentos fallidos (opcionalmente regenera codigo con `reset_code: "1"`) |
 
 ### Programa de lealtad
 
