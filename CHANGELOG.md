@@ -5,6 +5,28 @@ All notable changes to `@smsmasivos/mcp-server` are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] — 2026-04-29
+
+Minor bump (no breaking). Completa el flujo OTP que quedó parcial en v1.0.0.
+
+### Added — 2 new tools
+
+- **`resend_verification`** → `POST /protected/json/phones/verification/resend`. Reenvía el código a un número con verificación activa. Por default reenvía el mismo código; con `reset_code: "1"` regenera uno nuevo. Acepta `voice`, `whatsapp`, `expiration_date`, `code_type`.
+- **`reset_verification`** → `POST /protected/json/phones/verification/reset`. Limpia los intentos fallidos de una verificación. Útil cuando el usuario excedió max attempts o el código expiró. Con `reset_code: "1"` además genera un código nuevo.
+
+### Why
+
+El plan de Fase 4 (v1.0.0) excluyó deliberadamente estas tools como "raramente invocado por LLM". En la práctica rompen la conversación: si un user dice *"no me llegó el SMS"*, el LLM debería poder invocar `resend` directo en vez de redirigir a soporte humano.
+
+### Tool count
+
+- v1.0.0: 27 tools
+- v1.1.0: **29 tools** (+2 OTP completion)
+
+### Migration
+
+Sin breaking changes. Clientes existentes funcionan sin tocar nada. Worker MCP (`mcp.smsmasivos.com.mx`) auto-pickea v1.1.0 vía caret `^1.0.0` en su `package.json` en el próximo deploy.
+
 ## [1.0.0] — 2026-04-27
 
 First stable release. Contains breaking changes vs. 0.4.x.
