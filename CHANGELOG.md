@@ -39,6 +39,7 @@ Sin breaking changes. Clientes existentes funcionan sin tocar nada. Worker MCP (
 ## [1.0.0] — 2026-04-27
 
 First stable release. Contains breaking changes vs. 0.4.x.
+Merged via [PR #2](https://github.com/SMS-Masivos/mcp-server/pull/2) (`feature/fase-4-v1.0.0` → `main`).
 
 ### Added — 10 new tools
 
