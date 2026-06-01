@@ -5,6 +5,20 @@ All notable changes to `@smsmasivos/mcp-server` are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.2] — 2026-06-01
+
+Patch — docs + housekeeping. Sin cambios de código de tools (`dist` idéntico).
+
+### Changed
+
+- **Conteo de tools corregido: 29 → 30.** El total estaba off-by-one desde v1.0.0 (el CHANGELOG de 1.0.0 contó "+9 nuevas" cuando la Fase 4 agregó 10 tools). El registro real en `src/tools/index.ts` tiene **30 tools** (incluye `get_metrics`). Corregido en `package.json` (description) y `README.md` (header).
+- `README.md`: documentada la paginación page-based de `find_agenda` (`page`/`limit`/`next_page`), agregada tabla de acciones de `manage_webhook`, corregido el conteo de recursos FAQ (5 → 6, consistente con `faq.ts`), y agregada sección **Publicación (mantenedores)** con el flujo `npm publish` manual + redeploy del worker.
+- `CHANGELOG.md`: vinculado PR #2 en la entrada `[1.0.0]`.
+
+### Removed
+
+- `.github/workflows/publish-and-deploy.yml` — estaba mal nombrado (no publicaba a npm) y su único step (trigger cross-repo al worker) fallaba con **404** porque `secrets.GITHUB_TOKEN` está scoped al repo emisor. El worker auto-deploya en push a su `main` o vía `workflow_dispatch` (documentado en el README).
+
 ## [1.1.1] — 2026-04-29
 
 Patch — README only. v1.1.0 publicó las tools `resend_verification` y `reset_verification` correctamente pero el README no las listó en la tabla "Verificación OTP". Sin cambios de código.

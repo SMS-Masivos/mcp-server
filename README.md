@@ -9,7 +9,7 @@ Conecta tu asistente de IA con SMS Masivos para enviar mensajes, gestionar conta
 
 ## Features
 
-- **29 tools** — SMS, campanas, contactos, agendas CRUD, webhooks, reports, payment requests, verificacion OTP completa (start/check/resend/reset), lealtad, monederos y metricas
+- **30 tools** — SMS, campanas, contactos, agendas CRUD, webhooks, reports, payment requests, verificacion OTP completa (start/check/resend/reset), lealtad, monederos y metricas
 - **FAQ integrado** — 6 recursos de ayuda accesibles desde tu asistente
 - **Prompts guiados** — 4 flujos paso a paso para tareas comunes
 - **Telemetria** — metricas de uso por sesion (latencia, errores, sandbox vs produccion)
