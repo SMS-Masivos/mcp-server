@@ -9,8 +9,8 @@ Conecta tu asistente de IA con SMS Masivos para enviar mensajes, gestionar conta
 
 ## Features
 
-- **29 tools** — SMS, campanas, contactos, agendas CRUD, webhooks, reports, payment requests, verificacion OTP completa (start/check/resend/reset), lealtad, monederos y metricas
-- **FAQ integrado** — 5 recursos de ayuda accesibles desde tu asistente
+- **30 tools** — SMS, campanas, contactos, agendas CRUD, webhooks, reports, payment requests, verificacion OTP completa (start/check/resend/reset), lealtad, monederos y metricas
+- **FAQ integrado** — 6 recursos de ayuda accesibles desde tu asistente
 - **Prompts guiados** — 4 flujos paso a paso para tareas comunes
 - **Telemetria** — metricas de uso por sesion (latencia, errores, sandbox vs produccion)
 - **Sandbox** — prueba sin enviar mensajes reales ni gastar creditos
@@ -163,7 +163,7 @@ Agrega a `~/.codeium/windsurf/mcp_config.json` — misma configuracion que Curso
 | Tool | Descripcion |
 |------|-------------|
 | `list_agendas` | Lista agendas de contactos |
-| `find_agenda` | Busca agendas por nombre (parcial) |
+| `find_agenda` | Busca agendas por nombre (parcial). Paginado por página: `page` (default 1), `limit` (default 20, max 100). Si la respuesta indica `has_more`, vuelve a invocar con el `next_page` sugerido |
 | `create_agenda` | Crea una nueva agenda |
 | `rename_agenda` | Cambia el nombre de una agenda |
 | `delete_agenda` | Elimina una agenda y sus contactos (DESTRUCTIVO) |
@@ -207,6 +207,17 @@ Agrega a `~/.codeium/windsurf/mcp_config.json` — misma configuracion que Curso
 | Tool | Descripcion |
 |------|-------------|
 | `manage_webhook` | Gestiona el webhook de la cuenta. Acciones: `list`, `add`, `toggle`, `delete`. URLs https obligatorias. |
+
+`manage_webhook` consolida las 4 operaciones en una sola tool vía el campo `action`:
+
+| `action` | Parámetros | Efecto |
+|----------|------------|--------|
+| `list` | — | Devuelve el webhook configurado y su estado |
+| `add` | `url` (https), `status` (`"1"`/`"0"`) | Registra o reemplaza el webhook |
+| `toggle` | `status` (`"1"`/`"0"`) | Activa/desactiva sin cambiar la URL |
+| `delete` | — | Elimina el webhook (DESTRUCTIVO) |
+
+> Solo se permite **un webhook por cuenta**. Las URLs deben ser `https://`; se rechazan IPs privadas, loopback e IPv6 link-local.
 
 ### Reports
 
@@ -274,6 +285,20 @@ npm install
 npm run build
 npm test
 ```
+
+### Publicación (mantenedores)
+
+La publicación a npm es **manual** (granular access token con 2FA configurado en `~/.npmrc`):
+
+```bash
+# 1. Bump de versión en package.json + entrada en CHANGELOG.md
+# 2. Publicar
+npm publish
+# 3. Redeploy del worker remoto (recoge la nueva versión vía caret ^x.y.z)
+gh workflow run deploy.yml --repo SMS-Masivos/mcp-worker --ref main
+```
+
+> El worker [`mcp-worker`](https://github.com/SMS-Masivos/mcp-worker) auto-deploya en cada push a su `main` y hace `npm ci`, por lo que recoge la última versión publicada. Si solo publicaste en este repo (sin cambios en el worker), dispara su deploy manualmente con el comando de arriba.
 
 ## Licencia
 
