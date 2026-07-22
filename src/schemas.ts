@@ -132,7 +132,7 @@ export const getCampaignStatsInput = z.object({
 
 // ── OTP v2 (POST/GET/DELETE /v2/otp) ────────────────────────────────────────────────
 // Reemplaza al OTP v1 (verify_phone/check_verification/resend_verification/reset_verification).
-// Contrato: api/controllers/controller.verificationv2.php · doc: api-docs/docs/otp.mdx.
+// Contrato: endpoints /v2/otp de la API.
 
 export const sendOtpInput = z.object({
   phone_number: phoneNumber.describe("Número de teléfono a verificar, sin código de país (ej: '5512345678'). En México, 10 dígitos."),
@@ -248,7 +248,7 @@ export const updateWalletBalanceInput = z.object({
 });
 
 // ─────────────────────────────────────────────────────────
-// Fase 4 — Agendas CRUD
+// Agendas CRUD
 // ─────────────────────────────────────────────────────────
 
 export const createAgendaInput = z.object({
@@ -290,7 +290,7 @@ export const findAgendaInput = z.object({
 });
 
 // ─────────────────────────────────────────────────────────
-// Fase 4 — Contactos
+// Contactos
 // ─────────────────────────────────────────────────────────
 
 export const updateContactInput = z.object({
@@ -315,7 +315,7 @@ export const duplicateContactInput = z.object({
 });
 
 // ─────────────────────────────────────────────────────────
-// Fase 4 — Reports
+// Reports
 // ─────────────────────────────────────────────────────────
 
 export const dateRangeMaxSeven = (start: string, end: string): boolean => {
@@ -345,7 +345,7 @@ export const getReportDetailsInput = z.object({
 });
 
 // ─────────────────────────────────────────────────────────
-// Fase 4 — Payment Request
+// Payment Request
 // ─────────────────────────────────────────────────────────
 
 export const sendPaymentRequestInput = z.object({
@@ -362,7 +362,7 @@ export const sendPaymentRequestInput = z.object({
 });
 
 // ─────────────────────────────────────────────────────────
-// Fase 4 — Webhook (consolidado con discriminatedUnion)
+// Webhook (consolidado con discriminatedUnion)
 // El sistema permite UN solo webhook por usuario, sin id.
 // ─────────────────────────────────────────────────────────
 

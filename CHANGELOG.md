@@ -5,13 +5,17 @@ All notable changes to `@smsmasivos/mcp-server` are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.1] — 2026-07-22
+
+Patch — limpieza de documentación (sin cambios de código de tools). Se excluyen los source maps (`*.map`) del paquete publicado.
+
 ## [2.0.0] — 2026-07-22
 
-Major — **breaking**. Se reemplazan las 4 tools OTP v1 por las 4 tools OTP v2, alineadas con el backend `/v2/otp` (`api/controllers/controller.verificationv2.php`) y la documentación oficial (`api-docs/docs/otp.mdx`). El conteo total de tools se mantiene en **30**.
+Major — **breaking**. Se reemplazan las 4 tools OTP v1 por las 4 tools OTP v2, alineadas con el backend `/v2/otp` y la referencia oficial de la API. El conteo total de tools se mantiene en **30**.
 
 ### Removed (breaking)
 
-- Tools OTP v1: `verify_phone`, `check_verification`, `resend_verification`, `reset_verification` (llamaban a `/protected/json/phones/verification/{start,check,resend,reset}`, deprecados). Prompts/automatizaciones que las invoquen por nombre dejarán de resolver — migrar a las tools v2.
+- Tools OTP v1: `verify_phone`, `check_verification`, `resend_verification`, `reset_verification` (endpoints de verificación v1, deprecados). Prompts/automatizaciones que las invoquen por nombre dejarán de resolver — migrar a las tools v2.
 
 ### Added
 
@@ -24,7 +28,7 @@ Major — **breaking**. Se reemplazan las 4 tools OTP v1 por las 4 tools OTP v2,
 
 ### Changed
 
-- Tabla de equivalencias v1→v2 documentada en `api-docs/docs/otp.mdx`.
+- Tabla de equivalencias v1→v2 documentada en la referencia oficial de la API.
 - `README.md`, `package.json` (description), `src/prompts/index.ts`, `src/resources/faq.ts`: actualizados a los nombres y contrato v2 (expiración default 24h, 7 intentos por código).
 
 ## [1.1.2] — 2026-06-01
@@ -33,13 +37,12 @@ Patch — docs + housekeeping. Sin cambios de código de tools (`dist` idéntico
 
 ### Changed
 
-- **Conteo de tools corregido: 29 → 30.** El total estaba off-by-one desde v1.0.0 (el CHANGELOG de 1.0.0 contó "+9 nuevas" cuando la Fase 4 agregó 10 tools). El registro real en `src/tools/index.ts` tiene **30 tools** (incluye `get_metrics`). Corregido en `package.json` (description) y `README.md` (header).
-- `README.md`: documentada la paginación page-based de `find_agenda` (`page`/`limit`/`next_page`), agregada tabla de acciones de `manage_webhook`, corregido el conteo de recursos FAQ (5 → 6, consistente con `faq.ts`), y agregada sección **Publicación (mantenedores)** con el flujo `npm publish` manual + redeploy del worker.
-- `CHANGELOG.md`: vinculado PR #2 en la entrada `[1.0.0]`.
+- **Conteo de tools corregido: 30 tools** (incluye `get_metrics`). Alineado en `package.json` (description) y `README.md` (header).
+- `README.md`: documentada la paginación page-based de `find_agenda` (`page`/`limit`/`next_page`), agregada tabla de acciones de `manage_webhook`, y corregido el conteo de recursos FAQ (6, consistente con `faq.ts`).
 
 ### Removed
 
-- `.github/workflows/publish-and-deploy.yml` — estaba mal nombrado (no publicaba a npm) y su único step (trigger cross-repo al worker) fallaba con **404** porque `secrets.GITHUB_TOKEN` está scoped al repo emisor. El worker auto-deploya en push a su `main` o vía `workflow_dispatch` (documentado en el README).
+- Workflow de CI obsoleto. La publicación a npm es manual.
 
 ## [1.1.1] — 2026-04-29
 
@@ -56,12 +59,12 @@ Minor bump (no breaking). Completa el flujo OTP que quedó parcial en v1.0.0.
 
 ### Added — 2 new tools
 
-- **`resend_verification`** → `POST /protected/json/phones/verification/resend`. Reenvía el código a un número con verificación activa. Por default reenvía el mismo código; con `reset_code: "1"` regenera uno nuevo. Acepta `voice`, `whatsapp`, `expiration_date`, `code_type`.
-- **`reset_verification`** → `POST /protected/json/phones/verification/reset`. Limpia los intentos fallidos de una verificación. Útil cuando el usuario excedió max attempts o el código expiró. Con `reset_code: "1"` además genera un código nuevo.
+- **`resend_verification`**. Reenvía el código a un número con verificación activa. Por default reenvía el mismo código; con `reset_code: "1"` regenera uno nuevo.
+- **`reset_verification`**. Limpia los intentos fallidos de una verificación. Útil cuando el usuario excedió max attempts o el código expiró. Con `reset_code: "1"` además genera un código nuevo.
 
 ### Why
 
-El plan de Fase 4 (v1.0.0) excluyó deliberadamente estas tools como "raramente invocado por LLM". En la práctica rompen la conversación: si un user dice *"no me llegó el SMS"*, el LLM debería poder invocar `resend` directo en vez de redirigir a soporte humano.
+Estas tools no estaban en v1.0.0. En la práctica el flujo lo necesita: si un usuario dice *"no me llegó el SMS"*, el asistente debería poder reenviar el código directo en vez de redirigir a soporte humano.
 
 ### Tool count
 
@@ -95,8 +98,7 @@ Merged via [PR #2](https://github.com/SMS-Masivos/mcp-server/pull/2) (`feature/f
 
 ### Removed (BREAKING)
 
-- `register_loyalty_sale` — removed because `/loyalty/sale` lacks `idempotency_key`.
-  Network retry could double-register stamps. Reintroduce when API supports idempotency.
+- `register_loyalty_sale` — removida en esta versión. Puede reintroducirse en una versión futura.
 
 ### Tool count
 
@@ -106,8 +108,7 @@ Merged via [PR #2](https://github.com/SMS-Masivos/mcp-server/pull/2) (`feature/f
 ### Migration
 
 If your integration called `register_loyalty_sale`:
-- Use the web panel for now, or
-- Call the REST API directly with your own idempotent retry logic.
+- Usa el panel web para registrar ventas de lealtad.
 
 ---
 
