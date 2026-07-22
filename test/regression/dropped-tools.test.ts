@@ -65,18 +65,20 @@ describe("v1.0.0 Fase 4 — tools nuevas registradas", () => {
     });
   }
 
-  it("total tools v1.1.0 = 29 (27 v1.0.0 + 2 OTP completion en v1.1.0)", () => {
-    // v1.0.0 base: 27 tools
-    //   8 fase1 (post-drop register_loyalty_sale del lealtad) + 3 lealtad + 4 monedero
-    //   + 1 utilidad (delete_contact) + 10 fase4 + 1 metrics = 27
-    // v1.1.0: + resend_verification + reset_verification = 29
+  it("total tools = 30 (26 no-OTP + 4 OTP v2)", () => {
+    // Base no-OTP: 26 tools
+    //   7 fase1 no-OTP (check_balance, send_sms, list_agendas, get_contacts, add_contact,
+    //   get_campaign_stats, list_campaigns) + 3 lealtad + 4 monedero + 1 utilidad (delete_contact)
+    //   + 6 fase3 (create/rename/delete/find_agenda, update/duplicate_contact)
+    //   + 4 fase4 (manage_webhook, generate_report, get_report_details, send_payment_request)
+    //   + 1 metrics (get_metrics) = 26 (verify_phone/check_verification v1 removidas)
+    // OTP v2: + send_otp + verify_otp + get_otp_status + delete_otp = 30
     const names = getRegisteredToolNames();
-    expect(names.length).toBeGreaterThanOrEqual(28);
-    expect(names.length).toBeLessThanOrEqual(30);
+    expect(names.length).toBe(30);
   });
 });
 
-describe("v1.1.0 OTP completion — tools registradas", () => {
+describe("OTP v2 — tools registradas y v1 removidas", () => {
   function getRegisteredToolNames(): string[] {
     const server = new McpServer({ name: "test", version: "0.0.0" });
     const fakeApiCall = async () => ({}) as any;
@@ -86,11 +88,17 @@ describe("v1.1.0 OTP completion — tools registradas", () => {
     return Object.keys(tools);
   }
 
-  it("registra resend_verification", () => {
-    expect(getRegisteredToolNames()).toContain("resend_verification");
-  });
+  for (const name of ["send_otp", "verify_otp", "get_otp_status", "delete_otp"]) {
+    it(`registra ${name}`, () => {
+      expect(getRegisteredToolNames()).toContain(name);
+    });
+  }
 
-  it("registra reset_verification", () => {
-    expect(getRegisteredToolNames()).toContain("reset_verification");
-  });
+  // Las tools OTP v1 fueron REEMPLAZADAS por las v2 (endpoints /protected/.../verification/*
+  // deprecados). Si alguien las re-registra por error, este guard falla.
+  for (const name of ["verify_phone", "check_verification", "resend_verification", "reset_verification"]) {
+    it(`NO registra ${name} (OTP v1 deprecado)`, () => {
+      expect(getRegisteredToolNames()).not.toContain(name);
+    });
+  }
 });
