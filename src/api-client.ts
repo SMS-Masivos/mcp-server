@@ -19,7 +19,20 @@ export interface ApiClientConfig {
 
 export interface ApiCallOptions {
   timeout?: number;
-  method?: "GET" | "POST";
+  method?: "GET" | "POST" | "DELETE";
+  /**
+   * Modo status-aware: en vez de mapear 401→AuthError / reintentar en 429 / lanzar en
+   * `success:false`, devuelve `{ status, body }` crudo y deja que el caller ramifique sobre
+   * el HTTP code. Requerido por los endpoints v2 (p. ej. OTP) cuyo contrato ES el status
+   * (401 = código incorrecto, 402 = saldo, 404/409/410/429 = estados de la verificación).
+   * Los errores de red/timeout SÍ se siguen lanzando (con su retry de timeout).
+   */
+  raw?: boolean;
+}
+
+export interface RawResponse {
+  status: number;
+  body: Record<string, unknown>;
 }
 
 export type ApiCall = <T>(
@@ -39,12 +52,14 @@ export function createApiClient(config: ApiClientConfig): ApiCall {
   ): Promise<T> {
     const timeout = opts?.timeout ?? defaultTimeout;
     const method = opts?.method ?? "POST";
+    const raw = opts?.raw ?? false;
     return executeWithRetry<T>(
       baseUrl,
       endpoint,
       config.apiKey,
       timeout,
       method,
+      raw,
       params,
       config.cfAccessClientId,
       config.cfAccessClientSecret,
@@ -59,7 +74,8 @@ async function executeWithRetry<T>(
   endpoint: string,
   apiKey: string,
   timeout: number,
-  method: "GET" | "POST",
+  method: "GET" | "POST" | "DELETE",
+  raw: boolean,
   params?: Record<string, unknown>,
   cfAccessClientId?: string,
   cfAccessClientSecret?: string,
@@ -87,13 +103,25 @@ async function executeWithRetry<T>(
       headers,
       signal: controller.signal,
     };
-    if (method === "POST") {
+    if (method !== "GET") {
       init.body = JSON.stringify({ source: "mcp", ...params });
     }
 
     const response = await fetch(url, init);
 
     clearTimeout(timer);
+
+    // Modo status-aware (v2): NO interceptar 401/429 ni lanzar en success:false.
+    // El caller ramifica sobre el HTTP code. Solo se parsea el body y se devuelve crudo.
+    if (raw) {
+      let rawBody: Record<string, unknown>;
+      try {
+        rawBody = (await response.json()) as Record<string, unknown>;
+      } catch {
+        throw new NetworkError("Respuesta inválida de la API (JSON malformado)");
+      }
+      return { status: response.status, body: rawBody } as T;
+    }
 
     if (response.status === 401) {
       throw new AuthError();
@@ -109,6 +137,7 @@ async function executeWithRetry<T>(
           apiKey,
           timeout,
           method,
+          raw,
           params,
           cfAccessClientId,
           cfAccessClientSecret,
@@ -147,6 +176,7 @@ async function executeWithRetry<T>(
           apiKey,
           timeout,
           method,
+          raw,
           params,
           cfAccessClientId,
           cfAccessClientSecret,

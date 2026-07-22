@@ -8,8 +8,6 @@ import { registerListAgendas } from "./list-agendas.js";
 import { registerGetContacts } from "./get-contacts.js";
 import { registerAddContact } from "./add-contact.js";
 import { registerGetCampaignStats } from "./get-campaign-stats.js";
-import { registerVerifyPhone } from "./verify-phone.js";
-import { registerCheckVerification } from "./check-verification.js";
 import { registerListCampaigns } from "./list-campaigns.js";
 import { registerGetMetrics } from "./get-metrics.js";
 import { registerDeleteContact } from "./delete-contact.js";
@@ -35,9 +33,11 @@ import { registerManageWebhook } from "./manage-webhook.js";
 import { registerGenerateReport } from "./generate-report.js";
 import { registerGetReportDetails } from "./get-report-details.js";
 import { registerSendPaymentRequest } from "./send-payment-request.js";
-// v1.1.0 — OTP completion
-import { registerResendVerification } from "./resend-verification.js";
-import { registerResetVerification } from "./reset-verification.js";
+// OTP v2 (reemplaza al OTP v1 verify_phone/check_verification/resend_verification/reset_verification)
+import { registerSendOtp } from "./send-otp.js";
+import { registerVerifyOtp } from "./verify-otp.js";
+import { registerGetOtpStatus } from "./get-otp-status.js";
+import { registerDeleteOtp } from "./delete-otp.js";
 
 function createInstrumentedApiCall(apiCall: ApiCall): ApiCall {
   return async <T>(
@@ -69,8 +69,6 @@ export function registerAllTools(server: McpServer, apiCall: ApiCall) {
   registerGetContacts(server, instrumented);
   registerAddContact(server, instrumented);
   registerGetCampaignStats(server, instrumented);
-  registerVerifyPhone(server, instrumented);
-  registerCheckVerification(server, instrumented);
   registerListCampaigns(server, instrumented);
 
   // Fase 2 — Lealtad
@@ -109,7 +107,9 @@ export function registerAllTools(server: McpServer, apiCall: ApiCall) {
   // Fase 4 — Payment Request
   registerSendPaymentRequest(server, instrumented);
 
-  // v1.1.0 — OTP completion (resend + reset)
-  registerResendVerification(server, instrumented);
-  registerResetVerification(server, instrumented);
+  // OTP v2 — send (crea|reenvía|rota|cambia canal), verify, status (read-only), delete (invalida)
+  registerSendOtp(server, instrumented);
+  registerVerifyOtp(server, instrumented);
+  registerGetOtpStatus(server, instrumented);
+  registerDeleteOtp(server, instrumented);
 }

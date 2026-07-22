@@ -130,19 +130,49 @@ export const getCampaignStatsInput = z.object({
   sandbox: z.enum(["0", "1"]).optional().describe("'1' si la campaña fue enviada en modo sandbox"),
 });
 
-export const verifyPhoneInput = z.object({
-  phone_number: phoneNumber.describe("Número de teléfono sin código de país (ej: '5512345678')"),
-  country_code: countryCode.describe("Código de país (default: 52 México)"),
-  company: z.string().min(1).max(40).describe("Nombre de la empresa que envía la verificación (máx 40 caracteres)"),
-  code_type: z
-    .enum(["numeric", "alphanumeric"])
+// ── OTP v2 (POST/GET/DELETE /v2/otp) ────────────────────────────────────────────────
+// Reemplaza al OTP v1 (verify_phone/check_verification/resend_verification/reset_verification).
+// Contrato: api/controllers/controller.verificationv2.php · doc: api-docs/docs/otp.mdx.
+
+export const sendOtpInput = z.object({
+  phone_number: phoneNumber.describe("Número de teléfono a verificar, sin código de país (ej: '5512345678'). En México, 10 dígitos."),
+  country_code: countryCode.describe("Código de país numérico (default: '52' México)"),
+  channel: z
+    .enum(["sms", "whatsapp", "voice"])
     .optional()
-    .describe("Tipo de código: 'numeric' (solo dígitos) o 'alphanumeric'"),
+    .describe("Canal de entrega: 'sms' (default), 'whatsapp' (plantilla oficial, ignora message/company) o 'voice' (dicta el código). Al reenviar puedes cambiar de canal: el mismo código sale por el nuevo."),
+  company: z
+    .string()
+    .min(1)
+    .max(40)
+    .optional()
+    .describe("Nombre de tu empresa/app mostrado al usuario. OBLIGATORIO con channel 'sms' y 'voice' (requisito de operadores); se ignora con 'whatsapp'."),
+  message: z
+    .string()
+    .optional()
+    .describe("Texto propio del SMS/voz (opcional). Debe incluir los placeholders {{code}} y {{company}}, solo caracteres GSM-7 y máx 160 chars ya sustituidos. Sin él se usa el texto default."),
+  code_format: z
+    .enum(["numeric", "alphanumeric", "letters"])
+    .optional()
+    .describe("Formato del código: 'numeric' (default), 'alphanumeric' o 'letters'."),
+  code_length: z
+    .number()
+    .int()
+    .min(4)
+    .max(10)
+    .optional()
+    .describe("Longitud del código, de 4 a 10 (default 6)."),
+  code_rotate: z
+    .boolean()
+    .optional()
+    .describe("true descarta el código vigente y genera uno nuevo (ronda con 7 intentos frescos); también destraba una verificación bloqueada. Sin él, un código vigente se REENVÍA tal cual."),
   expiration_date: dateYMDHMS
     .optional()
-    .describe("Fecha de expiración del código en formato 'YYYY-MM-DD HH:mm:ss'"),
-  voice: z.enum(["0", "1"]).optional().describe("'1' para enviar el código por llamada de voz"),
-  whatsapp: z.enum(["0", "1"]).optional().describe("'1' para enviar el código por WhatsApp"),
+    .describe("Expiración del código, formato 'YYYY-MM-DD HH:mm:ss' (futura). Default 24h, máximo 3 días."),
+  code_show: z
+    .enum(["0", "1"])
+    .optional()
+    .describe("'1' devuelve el código generado en la respuesta (solo para pruebas/automatización). Default '0'."),
   sandbox: z
     .enum(["0", "1"])
     .optional()
@@ -156,42 +186,20 @@ export const listCampaignsInput = z.object({
   limit: z.string().regex(/^\d{1,3}$/, "Debe ser un número entre 1 y 100").optional().describe("Cantidad máxima de campañas a retornar (default: 50, max: 100)"),
 });
 
-export const checkVerificationInput = z.object({
-  phone_number: phoneNumber.describe("Número de teléfono que recibió el código"),
-  country_code: countryCode.describe("Código de país"),
-  verification_code: z.string().min(1).max(10).describe("Código de verificación ingresado por el usuario"),
+export const verifyOtpInput = z.object({
+  phone_number: phoneNumber.describe("El mismo número usado en send_otp (sin código de país)"),
+  country_code: countryCode.describe("El mismo código de país usado en send_otp (default: '52')"),
+  code: z.string().min(1).max(10).describe("El código que capturó el usuario"),
 });
 
-export const resendVerificationInput = z.object({
-  phone_number: phoneNumber.describe("Número de teléfono al que se reenvía el código (mismo usado en verify_phone)"),
-  country_code: countryCode.describe("Código de país"),
-  company: z.string().min(1).max(40).describe("Nombre de la empresa que envía la verificación (máx 40 caracteres)"),
-  reset_code: z
-    .enum(["0", "1"])
-    .optional()
-    .describe("'1' para regenerar un código nuevo. Default '0' reenvía el código existente."),
-  code_type: z
-    .enum(["numeric", "alphanumeric"])
-    .optional()
-    .describe("Tipo de código si se regenera: 'numeric' o 'alphanumeric'"),
-  expiration_date: dateYMDHMS
-    .optional()
-    .describe("Nueva fecha de expiración del código en formato 'YYYY-MM-DD HH:mm:ss'"),
-  voice: z.enum(["0", "1"]).optional().describe("'1' para reenviar por llamada de voz"),
-  whatsapp: z.enum(["0", "1"]).optional().describe("'1' para reenviar por WhatsApp"),
+export const getOtpStatusInput = z.object({
+  phone_number: phoneNumber.describe("Número cuyo estado de verificación quieres consultar"),
+  country_code: countryCode.describe("Código de país numérico (default: '52')"),
 });
 
-export const resetVerificationInput = z.object({
-  phone_number: phoneNumber.describe("Número de teléfono cuya verificación se resetea"),
-  country_code: countryCode.describe("Código de país"),
-  reset_code: z
-    .enum(["0", "1"])
-    .optional()
-    .describe("'1' para generar un código nuevo. Default '0' mantiene el código existente y solo limpia los intentos."),
-  code_type: z
-    .enum(["numeric", "alphanumeric"])
-    .optional()
-    .describe("Tipo de código si se regenera: 'numeric' o 'alphanumeric'"),
+export const deleteOtpInput = z.object({
+  phone_number: phoneNumber.describe("Número cuya verificación activa quieres invalidar"),
+  country_code: countryCode.describe("Código de país numérico (default: '52')"),
 });
 
 export const deleteContactInput = z.object({

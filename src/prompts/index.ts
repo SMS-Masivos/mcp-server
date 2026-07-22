@@ -55,7 +55,7 @@ export function registerAllPrompts(server: McpServer) {
         role: "user" as const,
         content: {
           type: "text" as const,
-          text: "Quiero verificar un número de teléfono por SMS. Usa verify_phone para enviar el código OTP, y cuando me den el código usa check_verification para validarlo.",
+          text: "Quiero verificar un número de teléfono por SMS. Usa send_otp para enviar el código OTP, y cuando me den el código usa verify_otp para validarlo.",
         },
       },
     ],

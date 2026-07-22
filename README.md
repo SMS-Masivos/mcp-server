@@ -9,7 +9,7 @@ Conecta tu asistente de IA con SMS Masivos para enviar mensajes, gestionar conta
 
 ## Features
 
-- **30 tools** — SMS, campanas, contactos, agendas CRUD, webhooks, reports, payment requests, verificacion OTP completa (start/check/resend/reset), lealtad, monederos y metricas
+- **30 tools** — SMS, campanas, contactos, agendas CRUD, webhooks, reports, payment requests, verificacion OTP v2 (send/verify/status/delete), lealtad, monederos y metricas
 - **FAQ integrado** — 6 recursos de ayuda accesibles desde tu asistente
 - **Prompts guiados** — 4 flujos paso a paso para tareas comunes
 - **Telemetria** — metricas de uso por sesion (latencia, errores, sandbox vs produccion)
@@ -177,10 +177,10 @@ Agrega a `~/.codeium/windsurf/mcp_config.json` — misma configuracion que Curso
 
 | Tool | Descripcion |
 |------|-------------|
-| `verify_phone` | Inicia verificacion OTP (SMS, voz o WhatsApp) |
-| `check_verification` | Verifica codigo OTP |
-| `resend_verification` | Reenvia codigo OTP (mismo o regenerado con `reset_code: "1"`) |
-| `reset_verification` | Limpia intentos fallidos (opcionalmente regenera codigo con `reset_code: "1"`) |
+| `send_otp` | Genera y envia el codigo OTP (SMS, voz o WhatsApp). Repetir la llamada lo reenvia (cooldown 30s); con otro `channel` sale por el canal nuevo; `code_rotate: true` genera uno nuevo |
+| `verify_otp` | Verifica el codigo OTP que ingreso el usuario (`code`) |
+| `get_otp_status` | Consulta el estado de la verificacion sin efectos (read-only) |
+| `delete_otp` | Invalida la verificacion activa (no envia nada) |
 
 ### Programa de lealtad
 

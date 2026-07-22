@@ -5,6 +5,28 @@ All notable changes to `@smsmasivos/mcp-server` are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] — 2026-07-22
+
+Major — **breaking**. Se reemplazan las 4 tools OTP v1 por las 4 tools OTP v2, alineadas con el backend `/v2/otp` (`api/controllers/controller.verificationv2.php`) y la documentación oficial (`api-docs/docs/otp.mdx`). El conteo total de tools se mantiene en **30**.
+
+### Removed (breaking)
+
+- Tools OTP v1: `verify_phone`, `check_verification`, `resend_verification`, `reset_verification` (llamaban a `/protected/json/phones/verification/{start,check,resend,reset}`, deprecados). Prompts/automatizaciones que las invoquen por nombre dejarán de resolver — migrar a las tools v2.
+
+### Added
+
+- **`send_otp`** → `POST /v2/otp`. Punto único: crea, reenvía el mismo código (cooldown 30s), cambia de canal (`sms`/`whatsapp`/`voice`) o rota (`code_rotate: true`). Reemplaza a `verify_phone` + `resend_verification` + `reset_verification`.
+- **`verify_otp`** → `POST /v2/otp/verify`. Valida el `code` (antes `verification_code`). Reemplaza a `check_verification`.
+- **`get_otp_status`** → `GET /v2/otp/status`. Estado read-only, sin efectos secundarios. Nuevo.
+- **`delete_otp`** → `DELETE /v2/otp`. Invalida la verificación activa sin enviar nada. Nuevo.
+- `api-client`: modo `raw` (status-aware) + soporte `DELETE`. La v2 usa HTTP status reales (401 código incorrecto, 402 saldo, 404/409/410/429 estados); en modo `raw` el cliente devuelve `{status, body}` sin mapear 401→AuthError ni reintentar en 429. El camino no-raw (las otras 26 tools) queda intacto.
+- Tests: `test/api-client-raw.test.ts` (6 casos del modo raw). Total suite: 94 tests.
+
+### Changed
+
+- Tabla de equivalencias v1→v2 documentada en `api-docs/docs/otp.mdx`.
+- `README.md`, `package.json` (description), `src/prompts/index.ts`, `src/resources/faq.ts`: actualizados a los nombres y contrato v2 (expiración default 24h, 7 intentos por código).
+
 ## [1.1.2] — 2026-06-01
 
 Patch — docs + housekeeping. Sin cambios de código de tools (`dist` idéntico).

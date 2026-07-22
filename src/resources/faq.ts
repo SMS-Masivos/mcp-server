@@ -84,8 +84,9 @@ Pregunta a Claude: "¿Cuántos créditos SMS tengo?" — si responde con tu sald
 - El MCP maneja reintentos automáticamente
 
 ## Verificación OTP
-- Cada verificación consume **1 crédito**
-- Los códigos expiran por defecto en 10 minutos
+- Cada verificación consume **1 crédito** (por cualquier canal: SMS, voz o WhatsApp)
+- Los códigos expiran por defecto en **24 horas** (configurable, máximo 3 días)
+- Cada código admite **7 intentos** de verificación; al agotarlos se bloquea hasta rotarlo (\`code_rotate\`)
 `,
   },
   "sandbox-mode": {
@@ -147,7 +148,7 @@ El modo sandbox permite probar el flujo completo sin enviar mensajes reales ni c
 
 ## Verificación OTP
 > "Verifica el número 5512345678"
-→ Usa \`verify_phone\`, luego \`check_verification\` con el código
+→ Usa \`send_otp\`, luego \`verify_otp\` con el código. Si no le llegó, repite \`send_otp\` (mismo código, o cambia \`channel\` a voice/whatsapp); \`get_otp_status\` consulta el estado sin enviar, y \`delete_otp\` invalida la verificación.
 
 ## Lealtad
 > "¿Cuántos sellos tiene el cliente 5512345678?"
