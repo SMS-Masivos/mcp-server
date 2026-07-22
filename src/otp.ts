@@ -1,6 +1,6 @@
 // Helpers compartidos por las tools OTP v2 (send_otp / verify_otp / get_otp_status / delete_otp).
-// El contrato v2 (ver api/controllers/controller.verificationv2.php y la doc api-docs/docs/otp.mdx)
-// devuelve un envelope consistente y el HTTP status ES la señal principal. Estos helpers formatean
+// El contrato v2 de la API devuelve un envelope consistente y el HTTP status ES la señal principal.
+// Estos helpers formatean
 // ese envelope para el asistente y deciden cuándo una respuesta es un fallo de herramienta (isError)
 // vs. un estado informativo de la verificación (código incorrecto, expirado, etc.) que el asistente
 // debe poder leer y accionar.
@@ -36,8 +36,8 @@ export function formatOtp(body: OtpEnvelope | null | undefined): string {
     facts.push(`reenvío disponible en ${body.resend_available_in}s`);
   }
   // `code` solo es el OTP generado (code_show=1), que únicamente llega en respuestas de éxito.
-  // En errores el mismo campo puede traer el slug worker-crítico (p.ej. "sms_07" en un 402),
-  // que NO es un código para mostrar al usuario. Solo renderizarlo en envelopes de éxito.
+  // En errores este campo puede traer un slug de error interno, no un código para mostrar al
+  // usuario. Por eso solo se renderiza en envelopes de éxito.
   if (body.code && body.success !== false) facts.push(`código: ${body.code}`);
   if (facts.length) lines.push(facts.join(" · "));
 

@@ -190,8 +190,8 @@ Agrega a `~/.codeium/windsurf/mcp_config.json` — misma configuracion que Curso
 | `add_loyalty_contact` | Agrega contacto a una tarjeta de lealtad |
 | `get_loyalty_contact` | Consulta sellos y canjes de un contacto |
 
-> ⚠️ `register_loyalty_sale` fue removida en v1.0.0 (breaking) por falta de
-> idempotency en el endpoint del API. Ver [CHANGELOG](./CHANGELOG.md).
+> ℹ️ `register_loyalty_sale` no está disponible en esta versión. Para registrar
+> ventas de lealtad, usa el panel web.
 
 ### Monedero electronico
 
@@ -288,17 +288,7 @@ npm test
 
 ### Publicación (mantenedores)
 
-La publicación a npm es **manual** (granular access token con 2FA configurado en `~/.npmrc`):
-
-```bash
-# 1. Bump de versión en package.json + entrada en CHANGELOG.md
-# 2. Publicar
-npm publish
-# 3. Redeploy del worker remoto (recoge la nueva versión vía caret ^x.y.z)
-gh workflow run deploy.yml --repo SMS-Masivos/mcp-worker --ref main
-```
-
-> El worker [`mcp-worker`](https://github.com/SMS-Masivos/mcp-worker) auto-deploya en cada push a su `main` y hace `npm ci`, por lo que recoge la última versión publicada. Si solo publicaste en este repo (sin cambios en el worker), dispara su deploy manualmente con el comando de arriba.
+La publicación a npm es **manual** (`npm publish`, requiere permisos de mantenedor).
 
 ## Licencia
 

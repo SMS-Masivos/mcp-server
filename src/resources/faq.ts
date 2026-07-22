@@ -212,9 +212,7 @@ Primer release estable del MCP. **Contiene cambios breaking** respecto a v0.4.x.
 
 ## Tools removidas (BREAKING)
 
-- \`register_loyalty_sale\` — removida porque el endpoint \`/loyalty/sale\` no soporta
-  \`idempotency_key\`. Si la red falla en un retry, se pueden duplicar sellos.
-  Reintroducir cuando el API soporte idempotency.
+- \`register_loyalty_sale\` — removida en esta versión. Puede reintroducirse más adelante.
 
 ## Tools nuevas (10)
 
@@ -246,9 +244,8 @@ Primer release estable del MCP. **Contiene cambios breaking** respecto a v0.4.x.
 
 ## Migración para clientes existentes
 
-Si tu integración invocaba \`register_loyalty_sale\`, debes:
-1. Hasta nueva tool con idempotency: registrar ventas desde el panel web
-2. O usar la API REST directamente con tu propio control de retry idempotente
+Si tu integración invocaba \`register_loyalty_sale\`:
+1. Registra las ventas de lealtad desde el panel web.
 `,
   },
 };

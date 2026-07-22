@@ -1,6 +1,6 @@
 {
   "name": "@smsmasivos/mcp-server",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "MCP server for SMS Masivos — bulk SMS platform for Mexico. 30 tools covering SMS, agendas, contacts, webhooks, reports, payment requests, loyalty, wallet and phone verification (OTP v2: send/verify/status/delete).",
   "type": "module",
   "main": "dist/stdio.js",
@@ -12,7 +12,7 @@
     "README.md"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "rm -rf dist && tsc",
     "dev": "tsc --watch",
     "start": "node dist/stdio.js",
     "test": "vitest run",
