@@ -223,7 +223,7 @@ Agrega a `~/.codeium/windsurf/mcp_config.json` — misma configuracion que Curso
 
 | Tool | Descripcion |
 |------|-------------|
-| `generate_report` | Reporte detallado por rango de fechas (max 7 dias) |
+| `generate_report` | Reporte detallado por rango de fechas (max 7 dias). Si la respuesta indica que el reporte está incompleto, vuelve a invocar con las mismas fechas y el `cursor` sugerido (cada página cuenta como una de las 10 consultas de reporte del día) |
 | `get_report_details` | Agregados rapidos (entregados/fallidos/efectividad) por campaign_id |
 
 ### Solicitudes de pago

@@ -5,6 +5,19 @@ All notable changes to `@smsmasivos/mcp-server` are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] — 2026-11-02
+
+Minor — `generate_report` avisa cuando el reporte está incompleto y permite pedir la página siguiente.
+
+### Added
+
+- `generate_report`: parámetro opcional `cursor`. `/reports/generate` entrega el reporte en páginas de unos 10,000 mensajes; con el cursor que indica la respuesta anterior y las mismas fechas se pide la siguiente.
+
+### Fixed
+
+- `generate_report` presentaba la primera página como el total: con más de 10,000 mensajes en la ventana respondía «10000 mensaje(s)» sin ningún aviso. Ahora, si la API indica `pagination.has_more`, la respuesta dice que el reporte está incompleto y da el cursor de la página siguiente.
+- La descripción de la tool decía «límite de 4 reportes por usuario». El límite es de 10 consultas de reporte al día por cuenta, y cada página cuenta como una.
+
 ## [2.0.1] — 2026-07-22
 
 Patch — limpieza de documentación (sin cambios de código de tools). Se excluyen los source maps (`*.map`) del paquete publicado.

@@ -19,12 +19,13 @@ interface ReportRow {
 
 interface GenerateReportResponse {
   report: ReportRow[];
+  pagination?: { has_more?: boolean; next_cursor?: string | null };
 }
 
 export function registerGenerateReport(server: McpServer, apiCall: ApiCall) {
   server.tool(
     "generate_report",
-    "Genera un reporte detallado de mensajes enviados en un rango de fechas (MÁXIMO 7 DÍAS). Devuelve cada mensaje individual con destinatario, status, operador y referencia. Para agregados rápidos por campaña usa get_report_details. La operación puede tardar hasta 5 minutos en cuentas con alto volumen. El API tiene límite de 4 reportes por usuario antes de bloquear.",
+    "Genera un reporte detallado de mensajes enviados en un rango de fechas (MÁXIMO 7 DÍAS). Devuelve cada mensaje individual con destinatario, status, operador y referencia. Para agregados rápidos por campaña usa get_report_details. La operación puede tardar hasta 5 minutos en cuentas con alto volumen. El reporte llega en páginas de unos 10,000 mensajes: si la respuesta dice que está incompleto, vuelve a invocar con las mismas fechas y el cursor indicado. Cada página cuenta como una de las 10 consultas de reporte que la cuenta tiene al día.",
     generateReportInput.shape,
     async (params) => {
       try {
@@ -49,19 +50,25 @@ export function registerGenerateReport(server: McpServer, apiCall: ApiCall) {
         );
 
         const rows = result.report ?? [];
+        const hasMore = result.pagination?.has_more === true;
+        const nextCursor = result.pagination?.next_cursor;
         if (rows.length === 0) {
           return {
             content: [
               {
                 type: "text" as const,
-                text: `No hay mensajes registrados entre ${params.start_date} y ${params.end_date}.`,
+                text: params.cursor
+                  ? `No hay más mensajes entre ${params.start_date} y ${params.end_date} después de ese cursor.`
+                  : `No hay mensajes registrados entre ${params.start_date} y ${params.end_date}.`,
               },
             ],
           };
         }
 
         const lines = [
-          `${rows.length} mensaje(s) entre ${params.start_date} y ${params.end_date}:\n`,
+          hasMore
+            ? `Reporte INCOMPLETO: esta página trae ${rows.length} mensaje(s) entre ${params.start_date} y ${params.end_date}, y hay más.\n`
+            : `${rows.length} mensaje(s) entre ${params.start_date} y ${params.end_date}:\n`,
         ];
         for (const r of rows.slice(0, 50)) {
           lines.push(
@@ -71,6 +78,13 @@ export function registerGenerateReport(server: McpServer, apiCall: ApiCall) {
         if (rows.length > 50) {
           lines.push(
             `\n... y ${rows.length - 50} más. Para detalle completo descarga desde el panel.`,
+          );
+        }
+        if (hasMore) {
+          lines.push(
+            nextCursor
+              ? `\nPara la página siguiente invoca con las mismas fechas y cursor="${nextCursor}". Cada página cuenta como una de las 10 consultas de reporte del día.`
+              : `\nLa API no indicó cómo pedir la página siguiente: descarga el reporte completo desde el panel.`,
           );
         }
         return { content: [{ type: "text" as const, text: lines.join("\n") }] };
