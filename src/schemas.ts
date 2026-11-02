@@ -340,7 +340,7 @@ export const generateReportInput = z.object({
     .min(1)
     .optional()
     .describe(
-      "Solo para pedir la página siguiente: el cursor que indicó la respuesta anterior, con las mismas fechas. Omitido = primera página.",
+      "Solo para pedir la página siguiente: el cursor que indicó la respuesta anterior, con las mismas fechas y el mismo sandbox. Omitido = primera página.",
     ),
 });
 

@@ -122,9 +122,50 @@ describe("generate_report — paginación por cursor", () => {
     expect(texto).toContain("No hay más mensajes");
   });
 
-  it("la descripción da el límite real: 10 consultas al día", () => {
+  it("página vacía con has_more no da el reporte por terminado y da el cursor", async () => {
+    const t = registrar({ report: [], pagination: { has_more: true, next_cursor: "MjAyNi0wNC0yMg==" } });
+    for (const p of [fechas, { ...fechas, cursor: "MjAyNi0wNC0yMQ==" }]) {
+      const texto = (await t.correr(p)).content[0].text;
+      expect(texto).toContain("INCOMPLETO");
+      expect(texto).toContain('cursor="MjAyNi0wNC0yMg=="');
+      expect(texto).not.toContain("No hay");
+    }
+  });
+
+  it("página vacía con has_more y sin next_cursor manda al panel", async () => {
+    const texto = (await registrar({ report: [], pagination: { has_more: true, next_cursor: null } }).correr(fechas)).content[0].text;
+    expect(texto).toContain("INCOMPLETO");
+    expect(texto).toContain("panel");
+    expect(texto).not.toContain("No hay");
+  });
+
+  it("página llena con has_more da una sola indicación: el panel, y el cursor solo si hace falta", async () => {
+    const t = registrar({ report: Array(60).fill(row), pagination: { has_more: true, next_cursor: "MjAyNi0wNC0yMg==" } });
+    const texto = (await t.correr(fechas)).content[0].text;
+    expect(texto).toContain("y 10 más en esta página");
+    expect(texto.match(/panel/g)).toHaveLength(1);
+    expect(texto).toContain("solo si el usuario la necesita");
+    expect(texto).toContain('cursor="MjAyNi0wNC0yMg=="');
+  });
+
+  it("la página siguiente se pide con el mismo sandbox", async () => {
+    const t = registrar({ report: [row], pagination: { has_more: true, next_cursor: "MjAyNi0wNC0yMg==" } });
+    expect((await t.correr({ ...fechas, sandbox: "1" })).content[0].text).toContain('sandbox="1"');
+    expect((await t.correr(fechas)).content[0].text).toContain('sandbox="0"');
+  });
+
+  it("la última página pedida con cursor no se presenta como el total del rango", async () => {
+    const texto = (await registrar({ report: [row], pagination: { has_more: false, next_cursor: null } })
+      .correr({ ...fechas, cursor: "MjAyNi0wNC0yMg==" })).content[0].text;
+    expect(texto).toContain("Última página: 1 mensaje(s)");
+    expect(texto).toContain("después de ese cursor");
+  });
+
+  it("la descripción da el límite real y pide paginar solo si hace falta, con el mismo sandbox", () => {
     const d = registrar({ report: [] }).descripcion();
     expect(d).toContain("10 consultas");
     expect(d).not.toContain("4 reportes");
+    expect(d).toContain("solo si el usuario la necesita");
+    expect(d).toContain("el mismo sandbox");
   });
 });

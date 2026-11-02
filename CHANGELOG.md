@@ -11,11 +11,11 @@ Minor — `generate_report` avisa cuando el reporte está incompleto y permite p
 
 ### Added
 
-- `generate_report`: parámetro opcional `cursor`. `/reports/generate` entrega el reporte en páginas de unos 10,000 mensajes; con el cursor que indica la respuesta anterior y las mismas fechas se pide la siguiente.
+- `generate_report`: parámetro opcional `cursor`. `/reports/generate` entrega el reporte en páginas de unos 10,000 mensajes; con el cursor que indica la respuesta anterior, las mismas fechas y el mismo `sandbox` se pide la siguiente.
 
 ### Fixed
 
-- `generate_report` presentaba la primera página como el total: con más de 10,000 mensajes en la ventana respondía «10000 mensaje(s)» sin ningún aviso. Ahora, si la API indica `pagination.has_more`, la respuesta dice que el reporte está incompleto y da el cursor de la página siguiente.
+- `generate_report` presentaba la primera página como el total: con más de 10,000 mensajes en la ventana respondía «10000 mensaje(s)» sin ningún aviso. Ahora, si la API indica `pagination.has_more`, la respuesta dice que el reporte está incompleto (también cuando la página llega vacía) y da el cursor de la página siguiente.
 - La descripción de la tool decía «límite de 4 reportes por usuario». El límite es de 10 consultas de reporte al día por cuenta, y cada página cuenta como una.
 
 ## [2.0.1] — 2026-07-22
