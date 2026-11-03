@@ -52,7 +52,7 @@ Pregunta a Claude: "¿Cuántos créditos SMS tengo?" — si responde con tu sald
 ## NetworkError — Error de conexión
 - Verifica tu conexión a internet
 - El servidor puede estar en mantenimiento temporal
-- El MCP reintenta automáticamente en caso de timeout
+- Por timeout el MCP solo reintenta las consultas GET; un envío o cambio (POST/DELETE) que se corta no se repite y pudo haberse procesado: verifica su resultado antes de repetirlo
 
 ## "Créditos insuficientes"
 - Usa \`check_balance\` para verificar tu saldo
