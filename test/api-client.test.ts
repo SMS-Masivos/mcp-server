@@ -100,6 +100,48 @@ describe("createApiClient", () => {
 
     await expect(apiCallShort("/credits/consult")).rejects.toThrow(TimeoutError);
   });
+
+  it("does not retry a POST on timeout (it may have reached the API)", async () => {
+    const apiCallShort = createApiClient({ apiKey: "test-key", timeout: 1 });
+    mockFetch.mockImplementation(
+      () => new Promise((_, reject) => setTimeout(() => reject(new DOMException("Aborted", "AbortError")), 10)),
+    );
+
+    await expect(apiCallShort("/reports/generate", {})).rejects.toThrow(TimeoutError);
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not retry a DELETE on timeout", async () => {
+    const apiCallShort = createApiClient({ apiKey: "test-key", timeout: 1 });
+    mockFetch.mockImplementation(
+      () => new Promise((_, reject) => setTimeout(() => reject(new DOMException("Aborted", "AbortError")), 10)),
+    );
+
+    await expect(apiCallShort("/v2/otp", {}, { method: "DELETE", raw: true })).rejects.toThrow(TimeoutError);
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+  });
+
+  it("retries a GET once on timeout", async () => {
+    const apiCallShort = createApiClient({ apiKey: "test-key", timeout: 1 });
+    mockFetch.mockImplementation(
+      () => new Promise((_, reject) => setTimeout(() => reject(new DOMException("Aborted", "AbortError")), 10)),
+    );
+
+    await expect(apiCallShort("/contactlist/find", {}, { method: "GET" })).rejects.toThrow(TimeoutError);
+    expect(mockFetch).toHaveBeenCalledTimes(2);
+  });
+
+  it("returns the GET retry result when the second attempt succeeds", async () => {
+    const apiCallShort = createApiClient({ apiKey: "test-key", timeout: 1 });
+    mockFetch
+      .mockImplementationOnce(
+        () => new Promise((_, reject) => setTimeout(() => reject(new DOMException("Aborted", "AbortError")), 10)),
+      )
+      .mockResolvedValueOnce(new Response(JSON.stringify({ success: true, data: [] }), { status: 200 }));
+
+    await expect(apiCallShort("/contactlist/find", {}, { method: "GET" })).resolves.toEqual({ success: true, data: [] });
+    expect(mockFetch).toHaveBeenCalledTimes(2);
+  });
 });
 
 describe("apiCall GET method", () => {

@@ -25,7 +25,7 @@ export interface ApiCallOptions {
    * `success:false`, devuelve `{ status, body }` crudo y deja que el caller ramifique sobre
    * el HTTP code. Requerido por los endpoints v2 (p. ej. OTP) cuyo contrato ES el status
    * (401 = código incorrecto, 402 = saldo, 404/409/410/429 = estados de la verificación).
-   * Los errores de red/timeout SÍ se siguen lanzando (con su retry de timeout).
+   * Los errores de red/timeout SÍ se siguen lanzando (el retry de timeout es solo para GET).
    */
   raw?: boolean;
 }
@@ -169,7 +169,8 @@ async function executeWithRetry<T>(
     }
 
     if (error instanceof DOMException && error.name === "AbortError") {
-      if (attempt < 2) {
+      // Solo GET: un POST/DELETE cortado por tiempo pudo llegar a la API (cobrar, enviar). ⇒ api#366
+      if (method === "GET" && attempt < 2) {
         return executeWithRetry<T>(
           baseUrl,
           endpoint,
