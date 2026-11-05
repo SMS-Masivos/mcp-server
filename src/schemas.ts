@@ -335,6 +335,13 @@ export const generateReportInput = z.object({
     .enum(["0", "1"])
     .optional()
     .describe("'1' para reportes de sandbox, '0' o omitido para producción"),
+  cursor: z
+    .string()
+    .min(1)
+    .optional()
+    .describe(
+      "Solo para pedir la página siguiente: el cursor que indicó la respuesta anterior, con las mismas fechas y el mismo sandbox. Omitido = primera página.",
+    ),
 });
 
 export const getReportDetailsInput = z.object({

@@ -5,6 +5,20 @@ All notable changes to `@smsmasivos/mcp-server` are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] — 2026-11-02
+
+Minor — `generate_report` avisa cuando el reporte está incompleto y permite pedir la página siguiente.
+
+### Added
+
+- `generate_report`: parámetro opcional `cursor`. `/reports/generate` entrega el reporte en páginas de unos 10,000 mensajes; con el cursor que indica la respuesta anterior, las mismas fechas y el mismo `sandbox` se pide la siguiente.
+
+### Fixed
+
+- `generate_report` presentaba la primera página como el total: con más de 10,000 mensajes en la ventana respondía «10000 mensaje(s)» sin ningún aviso. Ahora, si la API indica `pagination.has_more`, la respuesta dice que el reporte está incompleto (también cuando la página llega vacía) y da el cursor de la página siguiente.
+- La descripción de la tool decía «límite de 4 reportes por usuario». El límite es de 10 consultas de reporte al día por cuenta, y cada página cuenta como una.
+- `api-client`: cuando una petición POST o DELETE se cortaba por tiempo, el cliente la mandaba otra vez. Pero la primera pudo haber llegado a la API: `send_sms`, `send_otp`, `send_payment_request` o `update_wallet_balance` podían ejecutarse dos veces, y `generate_report` gastaba dos consultas de la cuota por una sola página. Ahora solo se repiten por tiempo las peticiones GET; un POST o DELETE que se corta devuelve el error de tiempo agotado. El reintento ante un 429 no cambia: en ese caso la API no procesó la petición.
+
 ## [2.0.1] — 2026-07-22
 
 Patch — limpieza de documentación (sin cambios de código de tools). Se excluyen los source maps (`*.map`) del paquete publicado.
