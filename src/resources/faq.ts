@@ -47,7 +47,7 @@ Pregunta a Claude: "¿Cuántos créditos SMS tengo?" — si responde con tu sald
 ## RateLimitError — Demasiadas solicitudes
 - La API tiene límites de velocidad por Cloudflare
 - El MCP reintenta automáticamente una vez con el header Retry-After, solo si es de 10 s o menos
-- Si persiste, espera unos segundos entre operaciones
+- Si persiste, espera lo que indique el mensaje (si trae segundos, esos) antes de volver a intentar
 
 ## NetworkError — Error de conexión
 - Verifica tu conexión a internet

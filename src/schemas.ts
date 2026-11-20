@@ -332,12 +332,13 @@ export const dateRangeMaxSeven = (start: string, end: string): boolean => {
 
 export const LIST_CAMPAIGNS_MAX_DAYS = 31;
 
+// `maxDays` cuenta fechas inclusivas: 31 días = start y end con hasta 30 días de diferencia.
 export const dateRangeMaxDays = (start: string, end: string, maxDays: number): boolean => {
   const startMs = Date.parse(start);
   const endMs = Date.parse(end);
   if (Number.isNaN(startMs) || Number.isNaN(endMs)) return false;
   const diffDays = (endMs - startMs) / (1000 * 60 * 60 * 24);
-  return diffDays >= 0 && diffDays <= maxDays;
+  return diffDays >= 0 && diffDays <= maxDays - 1;
 };
 
 // Schema base con `.shape` exportable al MCP SDK. El refine de rango ≤7 días

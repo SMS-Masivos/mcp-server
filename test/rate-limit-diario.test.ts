@@ -80,6 +80,7 @@ describe("429 rate_limit_daily", () => {
     expect(error).toBeInstanceOf(RateLimitError);
     expect(error).not.toBeInstanceOf(DailyRateLimitError);
     expect(error.retryAfter).toBe(3600);
+    expect(error.message).toContain("3600 s");
     expect(mockFetch).toHaveBeenCalledTimes(1);
   });
 
@@ -135,9 +136,9 @@ describe("list_campaigns — rango de 31 días y paginación", () => {
     expect(llamadas).toHaveLength(0);
   });
 
-  it("acepta exactamente 31 días y rechaza 32", () => {
-    expect(dateRangeMaxDays("2026-10-20", "2026-11-20", 31)).toBe(true);
-    expect(dateRangeMaxDays("2026-10-19", "2026-11-20", 31)).toBe(false);
+  it("acepta 31 fechas inclusivas (30 días de diferencia) y rechaza 32", () => {
+    expect(dateRangeMaxDays("2026-10-21", "2026-11-20", 31)).toBe(true);
+    expect(dateRangeMaxDays("2026-10-20", "2026-11-20", 31)).toBe(false);
   });
 
   it("pasa el cursor a la API y, con has_more, da el cursor siguiente", async () => {

@@ -18,7 +18,7 @@ Minor — el MCP deja de martillar `/campaigns` y `/reports/details` y entiende 
 
 ### Changed
 
-- `list_campaigns`: rango máximo de **31 días**. Sin fechas pide los últimos 31 días (antes pedía todo el historial); con solo `end_date` pone `start_date` 30 días antes; con solo `start_date` pone `end_date` en hoy y, si eso pasa de 31 días, lo rechaza (no lo recorta); un rango mayor se rechaza antes de llamar a la API. La descripción de la tool avisa del cupo diario y remite al webhook de reportes.
+- `list_campaigns`: rango máximo de **31 días** (31 fechas contando inicio y fin, o sea hasta 30 de diferencia). Sin fechas pide los últimos 31 días (antes pedía todo el historial); con solo `end_date` pone `start_date` 30 días antes; con solo `start_date` pone `end_date` en hoy y, si eso pasa de 31 días, lo rechaza (no lo recorta); un rango mayor se rechaza antes de llamar a la API. La descripción de la tool avisa del cupo diario y remite al webhook de reportes.
 - `list_campaigns`: la descripción del parámetro `sandbox` y el FAQ ya no sugieren `sandbox='1'` como primera opción: solo si el usuario pide campañas de prueba.
 - `api-client`: ante un 429 que pide esperar más de 10 s el cliente ya no duerme el `Retry-After` (podía ser de horas, con la tool colgada); devuelve `RateLimitError` con su `retryAfter`. Un 429 con espera corta se sigue reintentando una vez.
 
