@@ -126,6 +126,11 @@ describe("list_campaigns — rango de 31 días y paginación", () => {
     const b = conRespuesta({ campaigns: [] });
     await b.t.correr({ end_date: "2026-11-10" });
     expect(b.llamadas[0].start_date).toBe("2026-10-11");
+    // Un end_date futuro cuenta el tope desde hoy, no desde ese fin.
+    const c = conRespuesta({ campaigns: [] });
+    await c.t.correr({ end_date: "2026-11-30" });
+    expect(c.llamadas[0].start_date).toBe("2026-10-21");
+    expect(c.llamadas[0].end_date).toBe("2026-11-20 23:59:59");
   });
 
   it("rechaza rangos de más de 31 días sin llamar a la API", async () => {

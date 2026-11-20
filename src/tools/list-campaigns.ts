@@ -39,7 +39,12 @@ export function registerListCampaigns(server: McpServer, apiCall: ApiCall) {
           apiParams.end_date = ymd(Date.now());
         } else if (!apiParams.start_date && apiParams.end_date) {
           const end = Date.parse(apiParams.end_date);
-          if (!Number.isNaN(end)) apiParams.start_date = ymd(end - (LIST_CAMPAIGNS_MAX_DAYS - 1) * DAY_MS);
+          if (!Number.isNaN(end)) {
+            // Un fin futuro («este mes») se acota a hoy: contar el tope desde ahí dejaría la ventana en días sin datos (#11638).
+            const fin = Math.min(end, Date.now());
+            apiParams.end_date = ymd(fin);
+            apiParams.start_date = ymd(fin - (LIST_CAMPAIGNS_MAX_DAYS - 1) * DAY_MS);
+          }
         }
         if (
           !apiParams.start_date ||
