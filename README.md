@@ -147,6 +147,14 @@ Agrega a `.cursor/mcp.json` en tu proyecto:
 
 Agrega a `~/.codeium/windsurf/mcp_config.json` — misma configuracion que Cursor (remoto o local).
 
+### Limite local de llamadas
+
+El servidor local (`@smsmasivos/mcp-server`) corta por su cuenta a **120 llamadas a la API por minuto** (ventana deslizante, por proceso). Es una defensa adicional a los limites de la API: si un agente entra en bucle, el MCP responde con un error de limite y los segundos de espera, sin enviar la peticion. Ajustalo con la variable de entorno `SMSMASIVOS_MAX_CALLS_PER_MINUTE` (`0` lo desactiva):
+
+```bash
+claude mcp add smsmasivos -e SMSMASIVOS_API_KEY=tu-api-key -e SMSMASIVOS_MAX_CALLS_PER_MINUTE=60 -- npx -y @smsmasivos/mcp-server
+```
+
 ## Tools disponibles
 
 ### SMS y campanas

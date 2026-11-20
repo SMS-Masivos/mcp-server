@@ -5,6 +5,12 @@ All notable changes to `@smsmasivos/mcp-server` are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Tope local de llamadas a la API en el servidor stdio: 120 por minuto (ventana deslizante de 60 s, por proceso). Al pasarlo, la tool responde con un `RateLimitError` que indica los segundos de espera y la petición no sale. Se ajusta con `SMSMASIVOS_MAX_CALLS_PER_MINUTE` (`0` lo desactiva). Los reintentos internos por 429 o timeout GET no consumen cupo.
+
 ## [2.1.0] — 2026-11-02
 
 Minor — `generate_report` avisa cuando el reporte está incompleto y permite pedir la página siguiente.

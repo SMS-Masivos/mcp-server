@@ -52,8 +52,8 @@ export class ValidationError extends SmsmasivosError {
 export class RateLimitError extends SmsmasivosError {
   retryAfter?: number;
 
-  constructor(retryAfter?: number) {
-    super("Rate limit excedido. Intenta de nuevo en unos segundos.", "rate_limit", 429);
+  constructor(retryAfter?: number, message?: string) {
+    super(message ?? "Rate limit excedido. Intenta de nuevo en unos segundos.", "rate_limit", 429);
     this.name = "RateLimitError";
     this.retryAfter = retryAfter;
   }

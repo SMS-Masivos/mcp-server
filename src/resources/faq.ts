@@ -48,6 +48,7 @@ Pregunta a Claude: "¿Cuántos créditos SMS tengo?" — si responde con tu sald
 - La API tiene límites de velocidad por Cloudflare
 - El MCP reintenta automáticamente una vez con el header Retry-After
 - Si persiste, espera unos segundos entre operaciones
+- El servidor local también corta por su cuenta al pasar de 120 llamadas por minuto (el mensaje indica cuántos segundos esperar). Ajusta el tope con \`SMSMASIVOS_MAX_CALLS_PER_MINUTE\` (\`0\` lo desactiva)
 
 ## NetworkError — Error de conexión
 - Verifica tu conexión a internet
