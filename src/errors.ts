@@ -59,6 +59,27 @@ export class RateLimitError extends SmsmasivosError {
   }
 }
 
+/**
+ * 429 del Worker de la API con `code: "rate_limit_daily"`: la cuenta agotó su cupo diario de
+ * `/campaigns` o `/reports/details`. No se reintenta ni se espera: el cupo vuelve a medianoche CDMX.
+ */
+export class DailyRateLimitError extends RateLimitError {
+  limit?: number;
+
+  constructor(retryAfter?: number, limit?: number) {
+    super(retryAfter);
+    this.name = "DailyRateLimitError";
+    this.code = "rate_limit_daily";
+    this.limit = limit;
+    this.message =
+      "Límite diario alcanzado" +
+      (limit ? ` (${limit} consultas por día a este endpoint)` : "") +
+      ". NO reintentes: el cupo se reinicia a medianoche, hora de la Ciudad de México" +
+      (retryAfter ? ` (en unos ${Math.ceil(retryAfter / 3600)} h)` : "") +
+      ". Para recibir el estado de los envíos en tiempo real configura el webhook de reportes en la cuenta.";
+  }
+}
+
 export class NetworkError extends SmsmasivosError {
   constructor(message: string = "Error de conexión con la API") {
     super(message, "network_error", 0);

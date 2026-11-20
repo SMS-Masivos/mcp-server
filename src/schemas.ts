@@ -180,10 +180,14 @@ export const sendOtpInput = z.object({
 });
 
 export const listCampaignsInput = z.object({
-  start_date: dateYMD.optional().describe("Fecha de inicio en formato YYYY-MM-DD"),
-  end_date: dateYMD.optional().describe("Fecha de fin en formato YYYY-MM-DD"),
-  sandbox: z.enum(["0", "1"]).optional().describe("'1' para listar campañas de sandbox"),
-  limit: z.string().regex(/^\d{1,3}$/, "Debe ser un número entre 1 y 100").optional().describe("Cantidad máxima de campañas a retornar (default: 50, max: 100)"),
+  start_date: dateYMD.optional().describe("Fecha de inicio en formato YYYY-MM-DD. Si se omite, se usan los últimos 31 días"),
+  end_date: dateYMD.optional().describe("Fecha de fin en formato YYYY-MM-DD (rango máximo de 31 días desde start_date)"),
+  sandbox: z.enum(["0", "1"]).optional().describe("'1' solo si el usuario pide expresamente campañas de sandbox; omitido = producción"),
+  limit: z.string().regex(/^\d{1,3}$/, "Debe ser un número entre 1 y 100").optional().describe("Cantidad máxima de campañas por página (default: 50, max: 100)"),
+  cursor: z
+    .string()
+    .optional()
+    .describe("Cursor de la página siguiente, tal como lo indicó la respuesta anterior (con las mismas fechas y el mismo sandbox)"),
 });
 
 export const verifyOtpInput = z.object({
@@ -324,6 +328,16 @@ export const dateRangeMaxSeven = (start: string, end: string): boolean => {
   if (Number.isNaN(startMs) || Number.isNaN(endMs)) return false;
   const diffDays = (endMs - startMs) / (1000 * 60 * 60 * 24);
   return diffDays >= 0 && diffDays <= 7;
+};
+
+export const LIST_CAMPAIGNS_MAX_DAYS = 31;
+
+export const dateRangeMaxDays = (start: string, end: string, maxDays: number): boolean => {
+  const startMs = Date.parse(start);
+  const endMs = Date.parse(end);
+  if (Number.isNaN(startMs) || Number.isNaN(endMs)) return false;
+  const diffDays = (endMs - startMs) / (1000 * 60 * 60 * 24);
+  return diffDays >= 0 && diffDays <= maxDays;
 };
 
 // Schema base con `.shape` exportable al MCP SDK. El refine de rango ≤7 días

@@ -5,6 +5,27 @@ All notable changes to `@smsmasivos/mcp-server` are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.0] — 2026-11-20
+
+Minor — el MCP deja de martillar `/campaigns` y `/reports/details` y entiende el cupo diario de la API. Origen: una cuenta corriendo este paquete en bucle con un agente de IA (cientos de miles de `POST /reports/details` al día) degradó la base de producción.
+
+### Added
+
+- `api-client`: cabecera `User-Agent: smsmasivos-mcp/<versión>` en todas las peticiones (antes salía `node`), para poder identificar este tráfico en la API.
+- `list_campaigns`: parámetro opcional `cursor` y paginación (`pagination.has_more` / `next_cursor`), igual que `generate_report`. Si la API aún no devuelve paginación, la respuesta se ve como antes.
+- `DailyRateLimitError` (`code: "rate_limit_daily"`, con `retryAfter` y `limit`): el 429 del cupo diario de la API (10 consultas al día por apikey y por endpoint en `/campaigns` y `/reports/details`; `get_campaign_stats` y `get_report_details` comparten `/reports/details`).
+- FAQ: sección «Cupo diario de consultas».
+
+### Changed
+
+- `list_campaigns`: rango máximo de **31 días**. Sin fechas pide los últimos 31 días (antes pedía todo el historial); con solo `end_date` pone `start_date` 30 días antes; con solo `start_date` pone `end_date` en hoy y, si eso pasa de 31 días, lo rechaza (no lo recorta); un rango mayor se rechaza antes de llamar a la API. La descripción de la tool avisa del cupo diario y remite al webhook de reportes.
+- `list_campaigns`: la descripción del parámetro `sandbox` y el FAQ ya no sugieren `sandbox='1'` como primera opción: solo si el usuario pide campañas de prueba.
+- `api-client`: ante un 429 que pide esperar más de 10 s el cliente ya no duerme el `Retry-After` (podía ser de horas, con la tool colgada); devuelve `RateLimitError` con su `retryAfter`. Un 429 con espera corta se sigue reintentando una vez.
+
+### Fixed
+
+- `list_campaigns`, `get_campaign_stats` y `get_report_details`: ante el 429 diario el cliente dormía el `Retry-After` completo, reintentaba y volvía a fallar sin dar contexto. Ahora responden de inmediato que no se reintente, cuándo se reinicia el cupo y que use el webhook de reportes.
+
 ## [2.1.0] — 2026-11-02
 
 Minor — `generate_report` avisa cuando el reporte está incompleto y permite pedir la página siguiente.

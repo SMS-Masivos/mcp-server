@@ -83,6 +83,11 @@ Pregunta a Claude: "¿Cuántos créditos SMS tengo?" — si responde con tu sald
 - Límite general: ~60 requests por minuto
 - El MCP maneja reintentos automáticamente
 
+## Cupo diario de consultas
+- \`list_campaigns\`, \`get_campaign_stats\` y \`get_report_details\` tienen un cupo de **10 consultas al día por apikey y por endpoint** (\`get_campaign_stats\` y \`get_report_details\` comparten \`/reports/details\`; se reinicia a medianoche, hora de la Ciudad de México)
+- Al agotarlo la API responde 429 \`rate_limit_daily\`: **no reintentes** ni repitas la consulta en bucle; espera al día siguiente
+- Para conocer el estado de los envíos en tiempo real configura el webhook de reportes (\`manage_webhook\`) en lugar de consultar en bucle
+
 ## Verificación OTP
 - Cada verificación consume **1 crédito** (por cualquier canal: SMS, voz o WhatsApp)
 - Los códigos expiran por defecto en **24 horas** (configurable, máximo 3 días)
@@ -98,7 +103,7 @@ El modo sandbox permite probar el flujo completo sin enviar mensajes reales ni c
 
 ## Cómo activar
 - En \`send_sms\`: usa \`sandbox='1'\`
-- En \`list_campaigns\`: usa \`sandbox='1'\` para ver campañas de prueba
+- En \`list_campaigns\`: \`sandbox='1'\` solo si el usuario pide expresamente campañas de prueba; si no, omítelo
 - En \`get_campaign_stats\`: usa \`sandbox='1'\` si la campaña fue de sandbox
 
 ## Comportamiento
@@ -136,7 +141,7 @@ El modo sandbox permite probar el flujo completo sin enviar mensajes reales ni c
 
 ## Ver campañas
 > "¿Cuáles son mis últimas campañas?"
-→ Usa \`list_campaigns\`
+→ Usa \`list_campaigns\` (rango máximo de 31 días, por defecto los últimos 31; con más resultados da un cursor para la página siguiente)
 
 ## Estadísticas de campaña
 > "¿Cómo fue la entrega de la campaña 12345?"
