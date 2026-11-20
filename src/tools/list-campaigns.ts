@@ -25,7 +25,7 @@ function ymd(ms: number): string {
 export function registerListCampaigns(server: McpServer, apiCall: ApiCall) {
   server.tool(
     "list_campaigns",
-    "Lista las campañas SMS de tu cuenta, de más reciente a más antigua, en páginas (por defecto 50, máximo 100). Rango máximo de 31 días; si no das fechas usa los últimos 31 días. Para historia más larga usa el panel web. Si la respuesta dice que hay más, pide la siguiente página solo si el usuario la necesita, con las mismas fechas, el mismo sandbox y el cursor indicado. Es una consulta pesada con un cupo diario por cuenta: no la repitas en bucle ni la uses para vigilar estados; para recibir el estado de los envíos en tiempo real configura el webhook de reportes. Usa el ID de campaña con get_campaign_stats para ver estadísticas de entrega.",
+    "Lista las campañas SMS de tu cuenta, de más reciente a más antigua, hasta 50 por consulta (máximo 100). Rango máximo de 31 días; si no das fechas usa los últimos 31 días. Para historia más larga usa el panel web. Si la respuesta dice que hay más, pide la siguiente página solo si el usuario la necesita, con las mismas fechas, el mismo sandbox y el cursor indicado. Es una consulta pesada con un cupo diario por cuenta: no la repitas en bucle ni la uses para vigilar estados; para recibir el estado de los envíos en tiempo real configura el webhook de reportes. Usa el ID de campaña con get_campaign_stats para ver estadísticas de entrega.",
     listCampaignsInput.shape,
     async (params) => {
       try {

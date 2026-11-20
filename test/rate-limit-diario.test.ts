@@ -171,6 +171,8 @@ describe("list_campaigns — rango de 31 días y paginación", () => {
     const { descripcion } = registrar(registerListCampaigns as never, async () => ({}));
     expect(descripcion()).toContain("cupo diario");
     expect(descripcion()).toContain("webhook");
+    // No promete paginación mientras api no la tenga desplegada: «hasta N por consulta» vale con y sin ella (#11638).
+    expect(descripcion()).not.toContain("en páginas");
   });
 });
 
