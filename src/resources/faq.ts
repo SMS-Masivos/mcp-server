@@ -141,7 +141,7 @@ El modo sandbox permite probar el flujo completo sin enviar mensajes reales ni c
 
 ## Ver campañas
 > "¿Cuáles son mis últimas campañas?"
-→ Usa \`list_campaigns\` (rango máximo de 31 días, por defecto los últimos 31; con más resultados da un cursor para la página siguiente)
+→ Usa \`list_campaigns\` (rango máximo de 31 días, por defecto los últimos 31; si la respuesta indica que hay más, trae un cursor para la página siguiente)
 
 ## Estadísticas de campaña
 > "¿Cómo fue la entrega de la campaña 12345?"
