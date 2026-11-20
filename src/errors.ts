@@ -53,7 +53,12 @@ export class RateLimitError extends SmsmasivosError {
   retryAfter?: number;
 
   constructor(retryAfter?: number) {
-    super("Rate limit excedido. Intenta de nuevo en unos segundos.", "rate_limit", 429);
+    super(
+      "Rate limit excedido. " +
+        (retryAfter ? `Intenta de nuevo en ${retryAfter} s.` : "Intenta de nuevo en unos segundos."),
+      "rate_limit",
+      429,
+    );
     this.name = "RateLimitError";
     this.retryAfter = retryAfter;
   }
