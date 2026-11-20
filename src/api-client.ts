@@ -5,9 +5,12 @@ import {
   NetworkError,
   TimeoutError,
 } from "./errors.js";
+import { createRateLimiter } from "./rate-limiter.js";
 
 const DEFAULT_BASE_URL = "https://api.smsmasivos.com.mx";
 const DEFAULT_TIMEOUT = 30_000;
+/** Llamadas a la API por ventana de 60 s antes de que el MCP corte localmente. */
+export const DEFAULT_MAX_CALLS_PER_MINUTE = 120;
 
 export interface ApiClientConfig {
   apiKey: string;
@@ -15,6 +18,13 @@ export interface ApiClientConfig {
   cfAccessClientId?: string;
   cfAccessClientSecret?: string;
   timeout?: number;
+  /**
+   * Tope local de llamadas a la API por minuto (ventana deslizante de 60 s, por proceso/API key).
+   * Es una defensa adicional a los límites de la API: frena a un agente que entra en bucle
+   * (p. ej. SMS pumping o enumeración) antes de que la petición salga. `0` lo desactiva.
+   * Por defecto {@link DEFAULT_MAX_CALLS_PER_MINUTE}.
+   */
+  maxCallsPerMinute?: number;
 }
 
 export interface ApiCallOptions {
@@ -44,6 +54,7 @@ export type ApiCall = <T>(
 export function createApiClient(config: ApiClientConfig): ApiCall {
   const baseUrl = config.baseUrl ?? DEFAULT_BASE_URL;
   const defaultTimeout = config.timeout ?? DEFAULT_TIMEOUT;
+  const limiter = createRateLimiter(config.maxCallsPerMinute ?? DEFAULT_MAX_CALLS_PER_MINUTE);
 
   async function apiCall<T>(
     endpoint: string,
@@ -53,6 +64,15 @@ export function createApiClient(config: ApiClientConfig): ApiCall {
     const timeout = opts?.timeout ?? defaultTimeout;
     const method = opts?.method ?? "POST";
     const raw = opts?.raw ?? false;
+    // Una sola vez por llamada lógica: los reintentos internos (429, timeout GET) no consumen cupo.
+    const retryAfterSeconds = limiter.tryAcquire();
+    if (retryAfterSeconds !== null) {
+      throw new RateLimitError(
+        retryAfterSeconds,
+        `Límite local del MCP alcanzado (${limiter.limit} llamadas por minuto). ` +
+          `Intenta de nuevo en ${retryAfterSeconds} s.`,
+      );
+    }
     return executeWithRetry<T>(
       baseUrl,
       endpoint,

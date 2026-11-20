@@ -3,6 +3,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { createApiClient } from "./api-client.js";
+import { parseMaxCallsPerMinute } from "./rate-limiter.js";
 import { registerAllTools } from "./tools/index.js";
 import { registerAllResources } from "./resources/index.js";
 import { registerAllPrompts } from "./prompts/index.js";
@@ -28,11 +29,20 @@ const server = new McpServer(
   },
 );
 
+let maxCallsPerMinute: number | undefined;
+try {
+  maxCallsPerMinute = parseMaxCallsPerMinute(process.env.SMSMASIVOS_MAX_CALLS_PER_MINUTE);
+} catch (error) {
+  process.stderr.write(`Error: ${(error as Error).message}\n`);
+  process.exit(1);
+}
+
 const apiCall = createApiClient({
   apiKey,
   baseUrl: process.env.SMSMASIVOS_BASE_URL,
   cfAccessClientId: process.env.CF_ACCESS_CLIENT_ID,
   cfAccessClientSecret: process.env.CF_ACCESS_CLIENT_SECRET,
+  maxCallsPerMinute,
 });
 registerAllTools(server, apiCall);
 registerAllResources(server);
