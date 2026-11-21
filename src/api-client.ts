@@ -2,12 +2,16 @@ import {
   SmsmasivosError,
   AuthError,
   RateLimitError,
+  DailyRateLimitError,
   NetworkError,
   TimeoutError,
 } from "./errors.js";
+import { USER_AGENT } from "./version.js";
 
 const DEFAULT_BASE_URL = "https://api.smsmasivos.com.mx";
 const DEFAULT_TIMEOUT = 30_000;
+// Un 429 que pide esperar más que esto no se duerme: se devuelve el error con su Retry-After.
+const MAX_RETRY_WAIT_SECONDS = 10;
 
 export interface ApiClientConfig {
   apiKey: string;
@@ -87,6 +91,7 @@ async function executeWithRetry<T>(
   try {
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
+      "User-Agent": USER_AGENT,
       apikey: apiKey,
     };
     if (cfAccessClientId && cfAccessClientSecret) {
@@ -128,9 +133,24 @@ async function executeWithRetry<T>(
     }
 
     if (response.status === 429) {
-      if (attempt < 2) {
-        const retryAfter = parseInt(response.headers.get("Retry-After") ?? "2", 10);
-        await sleep(retryAfter * 1000);
+      const retryAfterHeader = parseInt(response.headers.get("Retry-After") ?? "", 10);
+      const retryAfter = Number.isNaN(retryAfterHeader) ? undefined : retryAfterHeader;
+      let rateBody: { code?: unknown; limit?: unknown } | null = null;
+      try {
+        rateBody = (await response.json()) as { code?: unknown; limit?: unknown };
+      } catch {
+        rateBody = null;
+      }
+      // Cupo diario del Worker: no se duerme el Retry-After (llega a horas) ni se reintenta.
+      if (rateBody?.code === "rate_limit_daily") {
+        throw new DailyRateLimitError(
+          retryAfter,
+          typeof rateBody.limit === "number" ? rateBody.limit : undefined,
+        );
+      }
+      const wait = retryAfter ?? 2;
+      if (attempt < 2 && wait <= MAX_RETRY_WAIT_SECONDS) {
+        await sleep(wait * 1000);
         return executeWithRetry<T>(
           baseUrl,
           endpoint,
@@ -144,7 +164,7 @@ async function executeWithRetry<T>(
           attempt + 1,
         );
       }
-      throw new RateLimitError();
+      throw new RateLimitError(retryAfter);
     }
 
     let body: Record<string, unknown>;
